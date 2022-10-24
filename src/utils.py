@@ -9,77 +9,90 @@ import webbrowser
         self.workTime= workTime
         self.restTime=restTime'''
 Time = 24*60
-class activity:
-    def __init__(self, nameOfActivity, durationOfActivity, startingPointOfActivity):
-        self.name = nameOfActivity
-        self.duration = durationOfActivity
-        self.startingPoint = startingPointOfActivity
 
-    def displayActivity(self):
-        return(self.startingPoint, " - ", (self.startingPoint + self.duration), "   ", self.name)
-    def getStartingPoint(self):
+
+class Activity:
+    def __init__(self, name_of_activity, duration_of_activity, starting_point_of_activity):
+        self.name = name_of_activity
+        self.duration = duration_of_activity
+        self.startingPoint = starting_point_of_activity
+
+    def display_activity(self):
+        return self.startingPoint, " - ", (self.startingPoint + self.duration), "   ", self.name
+
+    def get_starting_point(self):
         return self.startingPoint
-    def getDuration(self):
+
+    def get_duration(self):
         return self.duration
-    def getName(self):
+
+    def get_name(self):
         return self.name
-    def setStartingPoint(self, newStartingPoint):
-        self.startingPoint = newStartingPoint
-    def setStartingPoint(self, newDuration):
-        self.duration = newDuration
-    def setName(self, newName):
-        self.name = newName
-class scheduleForADay:
+
+    def set_starting_point(self, new_starting_point):
+        self.startingPoint = new_starting_point
+
+    def set_duration(self, new_duration):
+        self.duration = new_duration
+
+    def set_name(self, new_name):
+        self.name = new_name
+
+
+class ScheduleForADay:
     def __init__(self):
-        activityList= []
+        activity_list = []
 
-        self.activityList = activityList
+        self.activityList = activity_list
 
-        print ("when do you wake up?")
-        wakingTime = float(input())
-        self.wakingTime = float(wakingTime)
-    def userAssistant(self):
+        print("when do you wake up?")
+        waking_time = float(input())
+        self.wakingTime = float(waking_time)
+
+    def user_assistant(self):
         print("would you like to add an Item or a Task to your schedule?")
         add = input()
-        if (add=="yes" or add == "true"):
+        if add == "yes" or add == "true":
             print("what would it be?")
-            nameOfActivity = input()
+            name_of_activity = input()
             print("what the duration of Item in hours?")
-            durationOfActivity = int(input())
-            while (durationOfActivity<=0):
+            duration_of_activity = int(input())
+            while duration_of_activity <= 0:
                 print("what the duration of Item in hours?")
-                durationOfActivity = input()
+                duration_of_activity = input()
             print("from what hour?")
-            startingPointOfActivity = input()
-            newActivity = activity
-            newActivity.__innit__(newActivity, nameOfActivity, durationOfActivity, startingPointOfActivity)
-            self.activityList.append(newActivity)
-            self.userAssistant()
-    def outputSchedule(self):
-        arrHours = [self.wakingTime]
+            starting_point_of_activity = input()
+            new_activity = Activity(name_of_activity, duration_of_activity, starting_point_of_activity)
+            self.activityList.append(new_activity)
+            self.user_assistant()
+
+    def output_schedule(self):
+        arr_hours = [self.wakingTime]
         h = float(self.wakingTime+0.5)
 
-        while(h<24.0):
-            arrHours.append(h)
+        while h < 24.0:
+            arr_hours.append(h)
             h = h + 0.5
-        for i in range(len(arrHours)):
-            print (arrHours[i],)
+        for i in range(len(arr_hours)):
+            print(arr_hours[i],)
         webbrowser.open_new_tab('schedule.html')
 
+    def add_item(self, name_of_task):
+        self.items_list.append(name_of_task)
 
-    def addItem(self, nameOfTask):
-        self.ItemsList.append(nameOfTask)
-    def addItemsDurationInHours(self, duration):
-        self.ItemsDurationInHours.append(duration)
-    def addItemsStartTime(self, StartingHour):
-        self.ItemsDurationInHours.append(StartingHour)
+    def add_items_duration_in_hours(self, duration):
+        self.items_duration_in_hours.append(duration)
+
+    def add_items_start_time(self, starting_hour):
+        self.items_duration_in_hours.append(starting_hour)
+
+
 def main():
-    sundaySchedule=scheduleForADay()
-    sundaySchedule.__innit__()
-    sundaySchedule.userAssistant()
-    sundaySchedule.outputSchedule()
+    sunday_schedule = ScheduleForADay()
+    sunday_schedule.__init__()
+    sunday_schedule.user_assistant()
+    sunday_schedule.output_schedule()
+
+
 if __name__ == '__main__':
     main()
-
-
-
