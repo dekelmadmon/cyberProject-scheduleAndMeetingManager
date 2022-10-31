@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>scheduleMaker</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 </head>
 <body>
 <table style="weight:98%">
@@ -17,35 +18,14 @@
         <td style="width:18">friday   </td>
         <td style="width:18">saturday </td>
     </tr>
-    <tr><th>5:00</th><td  rowspan="1">
-	  <input type="text" size= "5" height= "10">
-		<input type="button" action="/" size= "5" height= "10">
+    <tr><th>5:00</th>
 
-</td>
-<td  rowspan="1">
-	  <input type="text" size= "10" height= "10" >
-
-</td>
-<td  rowspan="1">
-	  <input type="text" size= "10" height= "10" >
-
-</td>
-<td  rowspan="1">
-	  <input type="text" size= "10" height= "10" >
-
-</td>
-<td  rowspan="1">
-	  <input type="text" size= "10" height= "10" >
-
-</td>
-<td  rowspan="1">
-	  <input type="text" size= "10" height= "10" >
-
-</td>
-<td  rowspan="1">
-	  <input type="text" size= "10" height= "10" >
-
-</td></tr>
+		{% for i in range(7) %}
+			<td  rowspan="1">
+				  <input class="text-box" type="text" size= "10" height= "10" >
+			</td>
+		{% endfor %}
+</tr>
     <tr><th>5:30</th><td  rowspan="1">
 	  <input type="text" size= "10" height= "10" >
 
@@ -1121,6 +1101,11 @@
 </table>
 <script>
 
+	$(".text-box")
+
+		.keyup(() => {
+			$.ajax("https://localhost:8080")
+		})
 </script>
 
 </body>

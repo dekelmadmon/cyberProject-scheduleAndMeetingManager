@@ -89,7 +89,6 @@ class ScheduleForADay:
 
 def main():
     sunday_schedule = ScheduleForADay()
-    sunday_schedule.__init__()
     sunday_schedule.user_assistant()
     sunday_schedule.output_schedule()
 
