@@ -1,5 +1,5 @@
 import sqlite3
-from . import utils
+from . import main
 import sqlite3
 import time
 import os
@@ -10,7 +10,7 @@ class Database(object):
 
     def __init__(self):
         """Initialize db class variables"""
-        self.directory =abspath(r'..\db\sqliteDBValueTracker.db')
+        self.directory =abspath(r'..\db\SQLite_Python.db')
         self.connection = sqlite3.connect(self.directory)
         self.cur = self.connection.cursor()
 
@@ -32,7 +32,7 @@ class Database(object):
 
     def create_table(self):
         """create a database table if it does not exist already"""
-        self.cur.execute('''CREATE TABLE data(unix REAL,\
+        self.cur.execute('''CREATE TABLE data(unix REAL,
                                             datestamp TEXT,
                                             item TEXT ,
                                             publishername TEXT,
@@ -47,36 +47,15 @@ class Database(object):
 
     def insertNewData(self, Item, publisherName, Price):
         unix = int(time.time())
-        date = str(datetime.datetime.fromtimestamp(unix).strftime('%Y-%m-%d %H:%M:%S'))
-        self.executemany([()])
-        self.commit()
-
-    def executeSelect(self, item):
-        item = item +'PriceAndPublisher'
-
-        result = "".join(line.strip() for line in item.splitlines())
-        indices = list(self.find(result, " "))
-        if (indices != []):
-            while (indices[-1] == len(result) - 2):
-                result = result[0:indices[-1]-1:]
-            result = result.replace(" ","_")
-        print(result)
-
-        self.cur.execute('SELECT datestamp, value FROM data '
-                         'WHERE item = (?);', [result])
-
-    def find(self, string, char):
-        for i, c in enumerate(string):
-            if c == char:
-                yield i
-
+        date = datetime.datetime.now()
 
 
 class ClientDatabase:
-    def __init__(self, name, email, password):  # initializes the database and enter basic data about user
-        self.name = name
-        self.email = email
-        self.password = password
+    def __init__(self):
+        """Initialize db class variables"""
+        self.directory = abspath(r'..\db\SQLite_Python.db')
+        self.connection = sqlite3.connect(self.directory)
+        self.cur = self.connection.cursor()
 
         try:
             sqlite_connection = sqlite3.connect('../db/SQLite_Python.db')
@@ -110,7 +89,18 @@ class ClientDatabase:
 
                 sqlite_connection.close()
                 print("The SQLite connection is closed")
-
+    def create_database_users_table(self):
+        sqlite_create_table_query = '''CREATE TABLE usersData (
+                                        userID text NOT NULL PRIMARY.
+                                        userName TEXT NOT NULL,
+                                        userEmail text NOT NULL,
+                                        userPassword text NOT NULL UNIQUE,);'''
+    def create_database_activity_table(self):
+        sqlite_create_table_query = '''CREATE TABLE activityData(
+                                                    userID text NOT NULL PRIMARY,
+                                                    userActivity text,
+                                                    startPoint REAL,
+                                                    duration REAL,)'''
     def enterNewActivity(self,  activityX): #insert new row and store there name of activity starttime and endtime
         print("Successfully Connected to SQLite")
         sqlite_insert_new_activity = ('''INSERT INTO usersData (userName, userEmail, userPassword, userActivity, startPoint, duration)
@@ -120,6 +110,7 @@ class ClientDatabase:
         self.commit()
     def getDB(self):
             for row in self.usersData:
+                pass
 
     def openCnnection(self):
         pass
