@@ -40,10 +40,11 @@
 
 	$(".text-box")
 
-		.keyup(() => {
-			$.ajax("https://localhost:8080")
-
+		.keyup(async () => {
+			const data = await $.ajax("https://localhost:8080")
+			alert(data)
 		})
+
 </script>
 
 </body>
