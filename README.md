@@ -1,4 +1,4 @@
-# cyberProject-scheduleAndMeetingManager
+# cyberProject-scheduleOrgenizerAppointmentsBooker
 
 hey everyone my name is dekel 
 
