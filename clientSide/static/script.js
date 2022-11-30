@@ -1,12 +1,16 @@
 $(".text-box")
 
-		.keyup(async () => {
-			const data = await fetch("/api/saveactivity", {
+		.keyup(async ( event ) => {
+		    const payload = JSON.stringify({
+			        name: event.target.value,
+			    });
+			console.log(payload)
+		    const data = await fetch("http://192.168.68.108/api/saveactivity", {
 			    method: 'POST',
 			    header: {'Content-Type': 'application/json'},
-			    body: JSON.stringify({
-			        name: $(this).value,
-			    }),
+			    body: payload,
 			})
-			alert(data)
+			console.log(data)
 		})
+
+

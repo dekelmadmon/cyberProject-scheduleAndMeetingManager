@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
+import json
 app = Flask(__name__)
 
 
@@ -13,10 +14,13 @@ def main_page():
 
 @app.route('/api/saveactivity', methods=["POST"])
 def postDB():
-    print(request.json)
-    return request.form['name']
+    print("JSON:")
+    print(request.data.decode('utf-8'))
+    data = request.data.decode('utf-8')
+    print(data.form['name'])
+    return data
 
 
 if __name__ == '__main__':
-   app.run(host="10.42.100.82", port=80, debug=True)
+   app.run(host="192.168.68.108", port=80, debug=True)
 
