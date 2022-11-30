@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 app = Flask(__name__)
 
 
@@ -11,6 +11,12 @@ def main_page():
    return render_template('home.html')
 
 
+@app.route('/api/saveactivity', methods=["POST"])
+def postDB():
+    print(request.json)
+    return request.form['name']
+
+
 if __name__ == '__main__':
-   app.run(host="localhost", port=8080, debug=True)
+   app.run(host="10.42.100.82", port=80, debug=True)
 
