@@ -3,12 +3,12 @@ import json
 app = Flask(__name__)
 
 
-@app.route('/')
-def home():
+@app.route('/main')
+def main_page():
    return render_template('theWeb.html')
 
-
-def main_page():
+@app.route('/')
+def home():
    return render_template('home.html')
 
 
