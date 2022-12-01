@@ -14,11 +14,10 @@ def main_page():
 
 @app.route('/api/saveactivity', methods=["POST"])
 def postDB():
-    print("JSON:")
-    print(request.data.decode('utf-8'))
     data = request.data.decode('utf-8')
-    print(data.form['name'])
-    return data
+    json_data = json.loads(data)
+    print(json_data['name'])
+    return json_data
 
 
 if __name__ == '__main__':
