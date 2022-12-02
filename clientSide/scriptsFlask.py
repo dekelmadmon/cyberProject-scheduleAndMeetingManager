@@ -11,6 +11,13 @@ def main_page():
 def home():
    return render_template('home.html')
 
+@app.route('/login')
+def login_page():
+    return render_template("login.html")
+
+@app.route('/sign-in')
+def sign_in_page():
+    return render_template("sign-in.html")
 
 @app.route('/api/saveactivity', methods=["POST"])
 def postDB():
@@ -18,6 +25,7 @@ def postDB():
     json_data = json.loads(data)
     print(json_data['name'])
     return json_data
+
 
 
 if __name__ == '__main__':
