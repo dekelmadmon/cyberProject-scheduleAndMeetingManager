@@ -5,12 +5,16 @@ $(".text-box")
 			        name: event.target.value,
 			    });
 			console.log(payload)
-		    const data = await fetch("http://192.168.68.108/api/saveactivity", {
+		    const data = await fetch("http://127.0.0.1/api/saveactivity", {
 			    method: 'POST',
 			    header: {'Content-Type': 'application/json'},
 			    body: payload,
 			})
 			console.log(data)
 		})
-
-
+function loginPageRedirect(){
+    window.location.href = "http://127.0.0.1/login"
+}
+function signInPageRedirect(){
+    window.location.href = "http://127.0.0.1/sign-in"
+}
