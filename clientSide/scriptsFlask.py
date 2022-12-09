@@ -20,14 +20,14 @@ def login_page():
 def sign_in_page():
     return render_template("sign-in.html")
 
-@app.route('/api/saveactivity', methods=["POST"])
+@app.route('/api/save-activity', methods=["POST"])
 def post_new_activity():
     data = request.data.decode('utf-8')
     json_data = json.loads(data)
     print(json_data['name'])
     return json_data
 
-@app.route('/api/newuserinfo', methods=["post"])
+@app.route('/api/new-user-info', methods=["post"])
 def login_info():
 
     return render_template('theWeb.html')

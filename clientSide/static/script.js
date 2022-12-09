@@ -1,4 +1,4 @@
-$(".text-box")
+$(".activity-text-box")
 
 		.keyup(async ( event ) => {
 		    const payload = JSON.stringify({
