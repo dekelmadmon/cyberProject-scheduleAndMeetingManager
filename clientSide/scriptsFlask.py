@@ -1,9 +1,12 @@
 from flask import Flask, render_template, request, jsonify
 import json
-
+import sys
+sys.path.append(r'C:\Users\dekel\PycharmProjects\cyberProject-scheduleAndMeetingManager\src')
+print(sys.path)
+from src import sqliteDBModules as DBM
 app = Flask(__name__)
 
-
+DB = DBM.Database()
 @app.route('/main')
 def main_page():
    return render_template('theWeb.html')
@@ -27,9 +30,12 @@ def post_new_activity():
     print(json_data['name'])
     return json_data
 
-@app.route('/api/new-user-info', methods=["post"])
-def login_info():
-
+@app.route('/api/sign-in-info', methods=["post"])
+def sign_in_info():
+    data = request.data.decode('utf-8')
+    json_data = json.loads(data)
+    print(json_data['username'])
+    print(json_data['password'])
     return render_template('theWeb.html')
 
 
