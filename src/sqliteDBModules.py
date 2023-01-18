@@ -6,8 +6,8 @@ import os
 import datetime
 from os.path import abspath
 
-class Database(object):
 
+class Database(object):
     def __init__(self):
         """Initialize db class variables"""
         self.directory =abspath(r'..\db\SQLite_Python.db')

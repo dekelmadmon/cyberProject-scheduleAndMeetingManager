@@ -5,7 +5,7 @@ $(".activity-text-box")
 			        name: event.target.value,
 			    });
 			console.log(payload)
-		    const data = await fetch("http://127.0.0.1/api/saveactivity", {
+		    const data = await fetch("http://127.0.0.1/api/save-activity", {
 			    method: 'POST',
 			    header: {'Content-Type': 'application/json'},
 			    body: payload,
