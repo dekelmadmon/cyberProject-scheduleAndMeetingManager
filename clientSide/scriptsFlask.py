@@ -34,8 +34,10 @@ def post_new_activity():
 def sign_in_info():
     data = request.data.decode('utf-8')
     json_data = json.loads(data)
-    print(json_data['username'])
-    print(json_data['password'])
+    username = json_data['username']
+    password = json_data['password']
+    print(username + ", " + password)
+
     return render_template('theWeb.html')
 
 
