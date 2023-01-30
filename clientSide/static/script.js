@@ -5,7 +5,7 @@ $(".activity-text-box")
 			        name: event.target.value,
 			    });
 			console.log(payload)
-		    const data = await fetch("http://127.0.0.1/api/save-activity", {
+		    const data = await fetch("/api/save-activity", {
 			    method: 'POST',
 			    header: {'Content-Type': 'application/json'},
 			    body: payload,
@@ -13,24 +13,25 @@ $(".activity-text-box")
 			console.log(data)
 		})
 function loginPageRedirect(){
-    window.location.href = "http://127.0.0.1/login"
+    window.location.href = "/login"
 }
 function signInPageRedirect(){
-    window.location.href = "http://127.0.0.1/sign-in"
+    window.location.href = "/sign-in"
 }
 
 function getValue(classname){
-    return $.(classname).val()
+    return $(classname).val()
 }
-$.(".submit-sign-in")
-        .keyup(async (event)) => {
+$(".submit-sign-in")
+        .keyup(async (event) => {
             const payload = JSON.stringify({
-            username: $.("user-name-sign-in"),
-            password: $.("password-sign-in"),
+            username: $(".user-name-sign-in").val(),
+            password: $(".password-sign-in").val(),
             });
             console.log(payload)
             const data = await fetch('/api/sign-in-info', {
 			    method: 'POST',
 			    header: {'Content-Type': 'application/json'},
 			    body: payload,
-        }
+			})
+        })

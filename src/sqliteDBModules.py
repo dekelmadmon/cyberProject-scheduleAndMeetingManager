@@ -1,9 +1,7 @@
 import sqlite3
 from . import main
 import sqlite3
-import time
-import os
-import datetime
+
 from os.path import abspath
 
 class Database(object):
