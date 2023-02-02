@@ -1,8 +1,7 @@
 import sqlite3
-from . import useless
-import sqlite3
 
 from os.path import abspath
+
 
 class Database(object):
     def __init__(self):
@@ -36,23 +35,28 @@ class Database(object):
                 sqlite_connection.close()
                 print("The SQLite connection is closed")
 
-    def enter_new_activity(self,  client_name, client_email, client_password, activityX_name, activityX_startingPoint, activityX_duration): #insert new row and store there name of activity starttime and endtime
+    # insert new row and store there name of activity start time and end time
+    def enter_new_activity(self,  client_name, client_email, client_password, activity_name, activity_starting_point,
+                           activity_duration):
+
         print("Successfully Connected to SQLite")
         sqlite_insert_new_activity = ('''INSERT INTO Data (Name, Email, Password, Activity, startPoint, duration)
                                             VALUES (?, ?, ?, ?, ?, ?)''')
-        sqlite_insert_new_activity_args=(client_name, client_email, client_password, activityX_name, activityX_startingPoint, activityX_duration)
+
+        sqlite_insert_new_activity_args = (client_name, client_email, client_password, activity_name,
+                                           activity_starting_point, activity_duration)
+
         self.cur.execute(sqlite_insert_new_activity, sqlite_insert_new_activity_args)
         self.connection.commit()
+
     def user_exist(self, email):
-        sqlite_search = ('''SELECT Email FROM data WHERE Email = ?''')
+        sqlite_search = '''SELECT Email FROM data WHERE Email = (?)'''
         self.cur.execute(sqlite_search, email)
-        print (self.cur.fetchall())
-        if (self.cur.fetchall()):
+        print(self.cur.fetchall())
+
+        if self.cur.fetchall():
             return True
         return False
 
-
     def open_connection(self):
         pass
-
-
