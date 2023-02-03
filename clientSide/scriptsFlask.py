@@ -8,7 +8,7 @@ DB = DBM.Database()
 
 @app.route('/main')
 def main_page():
-    return render_template('main.html')
+    return render_template('gpt_generated_html.html')
 
 
 @app.route('/')
