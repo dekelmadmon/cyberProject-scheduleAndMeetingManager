@@ -56,6 +56,13 @@ $(() => {
         })
 
     $('#schedule-header th').each((index, element) => {
+        $.ajax({
+            url: '/update_schedule_dates',
+            method: 'get',
+            data: index + ,
+            error: alert('update_failed'),
+            })
+
         $(element).text(index)
     })
 
@@ -70,3 +77,4 @@ function signInPageRedirect(){
 function getValue(class_name){
     return $(class_name).value()
 }
+

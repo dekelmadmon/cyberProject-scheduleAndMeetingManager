@@ -1,6 +1,11 @@
-from flask import Flask, render_template, request, jsonify
 import json
+
+import datetime
+
+from flask import Flask, render_template, request
+
 from src import sqliteDBModule as DBM
+
 app = Flask(__name__)
 
 DB = DBM.Database()
@@ -53,6 +58,11 @@ def login_info():
     email = json_data['email']
     print(username + ", " + password + ", " + email)
     DB.user_exist(email)
+
+@app.route('/update_schedule_dates', method=["get"])
+def update_dates():
+    data = request.data.decode('utf-8')
+    return (datetime.today()+datetime.timedelta(data))
 
 
 if __name__ == '__main__':
