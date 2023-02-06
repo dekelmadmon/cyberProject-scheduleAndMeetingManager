@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import json
 from src import sqliteDBModule as DBM
 app = Flask(__name__)

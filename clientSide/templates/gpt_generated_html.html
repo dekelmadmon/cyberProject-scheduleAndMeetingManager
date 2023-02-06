@@ -1,25 +1,11 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}" />
     <meta charset="UTF-8">
     <title>My Schedule</title>
-    <style>
-      /* Add CSS styles for the layout and design */
-      .container {
-        width: 80%;
-        margin: 0 auto;
-      }
-      h1 {
-        text-align: center;
-        margin-top: 50px;
-      }
-      .calendar {
-        width: 100%;
-        height: 400px;
-        border: 1px solid #ccc;
-        margin-top: 50px;
-      }
-    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
   </head>
   <body>
     <div class="container">
@@ -27,18 +13,36 @@
       <!-- Add a calendar component -->
       <div class="calendar"></div>
       <!-- Add a form for creating appointments -->
-      <form>
-        <label for="event-name">Event Name:</label>
-        <input type="text" id="event-name" name="event-name">
-        <br><br>
-        <label for="event-date">Event Date:</label>
-        <input type="date" id="event-date" name="event-date">
-        <br><br>
-        <label for="event-time">Event Time:</label>
-        <input type="time" id="event-time" name="event-time">
-        <br><br>
-        <button type="submit">Add Event</button>
-      </form>
+      <div>
+
+        <table id="schedule">
+
+          <tr id="schedule-header">
+            {% for i in range(7) %}
+                <th></th>
+            {% endfor %}
+
+          </tr>
+          <tr>
+            {% for i in range(7) %}
+                <td></td>
+            {% endfor %}
+          </tr>
+
+        </table>
+
+      </div>
+      <label for="event-name">Event Name:</label>
+      <input type="text" id="event-name" name="event-name">
+      <br><br>
+      <label for="event-date">Event Date:</label>
+      <input type="date" id="event-date" name="event-date">
+      <br><br>
+      <label for="event-duration">Event duration:</label>
+      <input type="time" id="event-duration" name="event-duration">
+      <br><br>
+      <button type="submit">Add Event</button>
+
     </div>
   </body>
 </html>
