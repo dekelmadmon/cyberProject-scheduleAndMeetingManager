@@ -4,6 +4,7 @@
     <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}" />
     <meta charset="UTF-8">
     <title>My Schedule</title>
+    <script src="{{url_for('static', filename='script.js')}}"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
   </head>
@@ -14,7 +15,7 @@
       <div class="calendar"></div>
       <!-- Add a form for creating appointments -->
       <div>
-
+        <button id="next"> =&gt; </button>
         <table id="schedule">
 
           <tr id="schedule-header">
@@ -30,6 +31,7 @@
           </tr>
 
         </table>
+        <button id="previous"> &lt;= </button>
 
       </div>
       <label for="event-name">Event Name:</label>

@@ -1,3 +1,7 @@
+let SOAB = {
+    week: 0,
+}
+
 $(() => {
     $(".activity-text-box")
 
@@ -17,7 +21,6 @@ $(() => {
     $("#submit-sign-in")
 
         .click(async (event) => {
-
             const payload = JSON.stringify({
                 username: $("#username-sign-in").val(),
                 password: $("#password-sign-in").val(),
@@ -56,15 +59,32 @@ $(() => {
         })
 
     $('#schedule-header th').each((index, element) => {
-        $.ajax({
+        console.log(index)
+        console.log(SOAB.week)
+        $.post({
             url: '/update_schedule_dates',
-            method: 'get',
-            data: index + ,
-            error: alert('update_failed'),
+            method: 'post',
+            const payload = JSON.stringify({
+                data: index + 7*(SOAB.week),
             })
+            console.log(index)
+            console.log(week.val())
+            console.log(payload)
+            error: alert('update_failed'),
+        }).json()
 
-        $(element).text(index)
+        $(element).text(nigger)
     })
+    $('#next')
+        .click(async (event) => {
+            SOAB.week++;
+    })
+
+    $('#previous')
+        .click(async (event) => {
+            SOAB.week--;
+    })
+
 
 })
 function loginPageRedirect(){
