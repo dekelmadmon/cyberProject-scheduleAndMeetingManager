@@ -62,10 +62,25 @@ def login_info():
 
 @app.route('/update_schedule_dates', methods=["post"])
 def update_dates():
+    """
+    the function gets the number of clicks you did on the week button in the array of dates in json
+    :return: returns an objects of dates to the client to update the dates on the array in html
+    """
     data = request.data.decode('utf-8')
     json_data = json.loads(data)
-    print(datetime.date() + datetime.timedelta(json_data('data')))
-    return make_response(datetime.date() + datetime.timedelta(json_data('data')))
+    arr = []
+
+    last_sunday = last_sunday_date()
+    for i in range(7):
+        arr.append(str(last_sunday + datetime.timedelta(json_data['factor'] + i - 1)))
+    return make_response(arr)
+
+
+def last_sunday_date():
+    today = datetime.date.today()
+    days_since_sunday = today.weekday() + 1
+    last_sunday = today - datetime.timedelta(days=days_since_sunday)
+    return last_sunday
 
 
 if __name__ == '__main__':

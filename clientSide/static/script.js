@@ -64,8 +64,8 @@ $(() => {
         $.post({
             url: '/update_schedule_dates',
             method: 'post',
-            const payload = JSON.stringify({
-                data: index + 7*(SOAB.week),
+            data: JSON.stringify({
+                factor: index + 7*(SOAB.week),
             })
             console.log(index)
             console.log(week.val())
