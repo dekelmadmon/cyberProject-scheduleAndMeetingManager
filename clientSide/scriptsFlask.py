@@ -73,6 +73,7 @@ def update_dates():
     last_sunday = last_sunday_date()
     for i in range(7):
         arr.append(str(last_sunday + datetime.timedelta(json_data['factor'] + i - 1)))
+        print(arr[i-1])
     return make_response(arr)
 
 

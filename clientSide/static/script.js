@@ -1,7 +1,6 @@
 let SOAB = {
     week: 0,
 }
-
 $(() => {
     $(".activity-text-box")
 
@@ -67,10 +66,6 @@ $(() => {
             data: JSON.stringify({
                 factor: index + 7*(SOAB.week),
             })
-            console.log(index)
-            console.log(week.val())
-            console.log(payload)
-            error: alert('update_failed'),
         }).json()
 
         $(element).text(nigger)
