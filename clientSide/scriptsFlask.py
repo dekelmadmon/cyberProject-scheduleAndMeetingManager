@@ -67,19 +67,24 @@ def update_dates():
     :return: returns an objects of dates to the client to update the dates on the array in html
     """
     data = request.data.decode('utf-8')
+    print("data-", data)
     json_data = json.loads(data)
-    arr = []
+    try:
+        last_sunday = last_sunday_date()
+    except:
+        print("fuck me")
+    print(last_sunday)
+    this_date = (str(last_sunday + datetime.timedelta(json_data['factor'] - 1)))
+    print("this_date = ", this_date)
 
-    last_sunday = last_sunday_date()
-    for i in range(7):
-        arr.append(str(last_sunday + datetime.timedelta(json_data['factor'] + i - 1)))
-        print(arr[i-1])
-    return make_response(arr)
+    return make_response(this_date)
 
 
 def last_sunday_date():
     today = datetime.date.today()
-    days_since_sunday = today.weekday() + 1
+    print(today)
+    days_since_sunday = 6-today.weekday()
+    print(days_since_sunday)
     last_sunday = today - datetime.timedelta(days=days_since_sunday)
     return last_sunday
 

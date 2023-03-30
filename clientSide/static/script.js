@@ -60,16 +60,20 @@ $(() => {
     $('#schedule-header th').each((index, element) => {
         console.log(index)
         console.log(SOAB.week)
+
         $.post({
             url: '/update_schedule_dates',
             method: 'post',
             data: JSON.stringify({
-                factor: index + 7*(SOAB.week),
-            })
-        }).json()
-
-        $(element).text(nigger)
+                factor: (index + 7*(SOAB.week)+1),
+            }),
+            success: function(response){
+                console.log(response)
+            },
+            dataType: 'string'
+        })
     })
+
     $('#next')
         .click(async (event) => {
             SOAB.week++;
@@ -92,4 +96,3 @@ function signInPageRedirect(){
 function getValue(class_name){
     return $(class_name).value()
 }
-
