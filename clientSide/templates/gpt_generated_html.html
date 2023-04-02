@@ -6,6 +6,8 @@
     <meta charset="UTF-8">
     <title>My Schedule</title>
     <script src="{{url_for('static', filename='script.js')}}"></script>
+    <script src="{{url_for('static', filename='utils.js')}}"></script>
+
 
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
   </head>
@@ -18,19 +20,16 @@
       <div>
         <button id="next"> =&gt; </button>
         <table id="schedule">
-
           <tr id="schedule-header">
             {% for i in range(7) %}
-                <th></th>
+              <th></th>
             {% endfor %}
-
           </tr>
           <tr>
             {% for i in range(7) %}
-                <td></td>
+              <td></td>
             {% endfor %}
           </tr>
-
         </table>
         <button id="previous"> &lt;= </button>
 

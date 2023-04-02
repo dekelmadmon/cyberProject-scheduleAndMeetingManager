@@ -66,19 +66,26 @@ def update_dates():
     the function gets the number of clicks you did on the week button in the array of dates in json
     :return: returns an objects of dates to the client to update the dates on the array in html
     """
-    data = request.data.decode('utf-8')
-    print("data-", data)
-    json_data = json.loads(data)
     try:
+        data = request.data.decode('utf-8')
+        print("data-", data)
+        json_data = json.loads(data)
+        print("json data ", json_data["factor"])
+
         last_sunday = last_sunday_date()
-    except:
-        print("fuck me")
-    print(last_sunday)
-    this_date = (str(last_sunday + datetime.timedelta(json_data['factor'] - 1)))
-    print("this_date = ", this_date)
+        print(last_sunday)
+        response_data = (str(last_sunday + datetime.timedelta(json_data['factor'] - 1)))
+        this_date = json.dumps({"data": response_data})
 
-    return make_response(this_date)
+        print("this_date = ", this_date)
 
+        return make_response(this_date)
+    except json.JSONDecodeError as e:
+        # handle JSON decoding errors, e.g. return a 400 Bad Request response
+        return make_response(json.dumps({"error": "Invalid JSON data"}), 400)
+    except KeyError as e:
+        # handle missing key errors, e.g. return a 400 Bad Request response
+        return make_response(json.dumps({"error": "Missing key in JSON data"}), 400)
 
 def last_sunday_date():
     today = datetime.date.today()

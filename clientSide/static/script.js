@@ -58,21 +58,25 @@ $(() => {
         })
 
     $('#schedule-header th').each((index, element) => {
-        console.log(index)
-        console.log(SOAB.week)
 
         $.post({
             url: '/update_schedule_dates',
             method: 'post',
             data: JSON.stringify({
-                factor: (index + 7*(SOAB.week)+1),
+                factor: parseFloat((index + 7*(SOAB.week)+1)),
             }),
-            success: function(response){
-                console.log(response)
-            },
-            dataType: 'string'
-        })
+            contentType: "application/json",
+            dataType: 'json'
+               })
+    .done(function(response) {
+        console.log(response);
+        var data = response.data;
+        $(element).text(data);
     })
+    .fail(function(jqXHR, textStatus, errorThrown) {
+        console.log('Error:', textStatus, errorThrown);
+    });
+});
 
     $('#next')
         .click(async (event) => {
@@ -86,6 +90,13 @@ $(() => {
 
 
 })
+function updateArray(response) {
+    // Update the array with the response data
+    let data = JSON.parse(response);
+    let newData = data.data; // Assuming the response is in the format {"data": "new date"}
+    $('#cell-{{ i }}').text(data)
+}
+
 function loginPageRedirect(){
     window.location.href = "/login-page"
 }
