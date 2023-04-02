@@ -2,6 +2,7 @@ let SOAB = {
     week: 0,
 }
 $(() => {
+    updateScheduleHeader()
     $(".activity-text-box")
 
         .keyup(async ( event ) => {
@@ -32,7 +33,7 @@ $(() => {
                 header: {'Content-Type': 'application/json'},
                 body: payload,
             })
-            window.location.href = "/main"
+            mainPageRedirect()
         })
 
 
@@ -54,56 +55,62 @@ $(() => {
                 header: {'Content-Type': 'application/json'},
                 body: payload,
             })
-            window.location.href = "/main"
+            mainPageRedirect()
         })
+    function updateScheduleHeader(){
+        $('#schedule-header th').each((index, element) => {
 
-    $('#schedule-header th').each((index, element) => {
-
-        $.post({
-            url: '/update_schedule_dates',
-            method: 'post',
-            data: JSON.stringify({
-                factor: parseFloat((index + 7*(SOAB.week)+1)),
-            }),
-            contentType: "application/json",
-            dataType: 'json'
-               })
-    .done(function(response) {
-        console.log(response);
-        var data = response.data;
-        $(element).text(data);
-    })
-    .fail(function(jqXHR, textStatus, errorThrown) {
-        console.log('Error:', textStatus, errorThrown);
-    });
-});
+            $.post({
+                url: '/update_schedule_dates',
+                method: 'post',
+                data: JSON.stringify({
+                    factor: parseFloat((index + 7*(SOAB.week)+1)),
+                }),
+                contentType: "application/json",
+                dataType: 'json'
+                   })
+        .done(function(response) {
+            console.log(response);
+            var data = response.data;
+            $(element).text(data);
+        })
+        .fail(function(jqXHR, textStatus, errorThrown) {
+            console.log('Error:', textStatus, errorThrown);
+        });
+    });}
 
     $('#next')
         .click(async (event) => {
-            SOAB.week++;
+            SOAB.week++
+            updateScheduleHeader()
     })
 
     $('#previous')
         .click(async (event) => {
-            SOAB.week--;
+            SOAB.week--
+            updateScheduleHeader()
     })
 
 
 })
-function updateArray(response) {
-    // Update the array with the response data
-    let data = JSON.parse(response);
-    let newData = data.data; // Assuming the response is in the format {"data": "new date"}
-    $('#cell-{{ i }}').text(data)
-}
 
 function loginPageRedirect(){
     window.location.href = "/login-page"
 }
+
 function signInPageRedirect(){
     window.location.href = "/sign-in-page"
 }
 
 function getValue(class_name){
     return $(class_name).value()
+}
+
+function reloadMainPage(){
+    updateScheduleHeader()
+}
+
+function mainPageRedirect(){
+    window.location.href = "/main"
+    updateScheduleHeader()
 }
