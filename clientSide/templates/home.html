@@ -1,31 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>welcome To SOAB</title>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
-          <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome to SOAB</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
 
-        <style>
-            body{
-                text-align: center;
-            }
-        </style>
-    </head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #F8F8F8;
+            text-align: center;
+            margin-top: 100px;
+        }
 
-    <body>
-    <script src="{{url_for('static', filename='script.js')}}"></script>
-    <img src="{{url_for('static', filename='logo.png')}}" />
+        img {
+            width: 150px;
+            margin-bottom: 30px;
+        }
 
-        <h1>Welcome to the SOAB!</h1>
-        <p>SOAB is a schedule organizer and appointment booker<br>
-        we want to make your life better organized and make appointment easier
-            to book and schedule them in your daily basis</p>
+        h1 {
+            font-size: 36px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
 
-        <button onclick="loginPageRedirect();">login</button>
-        <button onclick="signInPageRedirect();">sign-in</button>
+        p {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 30px;
+        }
 
+        button {
+            border: none;
+            border-radius: 4px;
+            padding: 12px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #FFF;
+            background-color: #1E90FF;
+            transition: all 0.3s ease-in-out;
+            cursor: pointer;
+            margin-right: 10px;
+        }
 
-    </body>
+        button:hover {
+            background-color: #333;
+        }
+    </style>
+</head>
 
-</html>
+<body>
+<script src="{{url_for('static', filename='script.js')}}"></script>
+<img src="{{url_for('static', filename='logo.png')}}" />
+
+<h1>Welcome to the SOAB!</h1>
+<p>SOAB is a schedule organizer and appointment booker<br>
+    we want to make your life better
