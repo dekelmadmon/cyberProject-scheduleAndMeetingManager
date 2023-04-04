@@ -1,46 +1,48 @@
 <!DOCTYPE html>
-<html lang="en">
-	<head>
-    	<meta charset="UTF-8">
-    	<title>scheduleMaker</title>
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
-    	<script src="{{url_for('static', filename='script.js')}}"></script>
+<html>
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}" />
+    <meta charset="UTF-8">
+    <title>My Schedule</title>
+    <script src="{{url_for('static', filename='script.js')}}"></script>
 
-		<script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>My Schedule</h1>
+      <!-- Add a calendar component -->
+      <div class="calendar"></div>
+      <!-- Add a form for creating appointments -->
+      <div>
+        <button id="next"> =&gt; </button>
+        <table id="schedule">
+          <tr id="schedule-header">
+            {% for i in range(7) %}
+              <th></th>
+            {% endfor %}
+          </tr>
+          <tr>
+            {% for i in range(7) %}
+              <td></td>
+            {% endfor %}
+          </tr>
+        </table>
+        <button id="previous"> &lt;= </button>
 
-	</head>
+      </div>
+      <label for="event-name">Event Name:</label>
+      <input type="text" id="event-name" name="event-name">
+      <br><br>
+      <label for="event-date">Event Date:</label>
+      <input type="date" id="event-date" name="event-date">
+      <br><br>
+      <label for="event-duration">Event duration:</label>
+      <input type="time" id="event-duration" name="event-duration">
+      <br><br>
+      <button type="submit">Add Event</button>
 
-	<body>
-	<table style="weight:98%">
-		<tbody>
-		<tr>
-			<td></td>
-			<td style="width:18">Sunday   </td>
-			<td style="width:18">Monday   </td>
-			<td style="width:18">Tuesday  </td>
-			<td style="width:18">Wednesday</td>
-			<td style="width:18">Thursday </td>
-			<td style="width:18">Friday   </td>
-			<td style="width:18">Saturday </td>
-
-		</tr>
-			{% for hour in range(5, 24) %}
-				{% for half in range(2) %}
-				<tr><th>{% if hour < 10 %}0{% endif %}{{ hour }}:{{ half * 3 }}0</th>
-					{% for i in range(7) %}
-						<td  rowspan="1">
-							  <input class="activity-text-box" id="text-box_{{hour}}_{{half}}_{{i}}" type="text" size= "10" height= "10" >
-						</td>
-					{% endfor %}
-				{% endfor %}
-				</tr>
-			{% endfor %}
-		</tr>
-
-		</tbody>
-
-
-	</table>
-		<script src="{{url_for('static', filename='script.js')}}"></script>
-	</body>
+    </div>
+  </body>
 </html>
