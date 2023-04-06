@@ -2,12 +2,29 @@
 <html>
   <head>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
-    <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}" />
+    <link rel="stylesheet" href="{{url_for('static', filename='main_page_style.css')}}" />
     <meta charset="UTF-8">
     <title>My Schedule</title>
     <script src="{{url_for('static', filename='script.js')}}"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
+    <style>
+      #schedule-container {
+        width: 100%;
+      }
+
+      #schedule {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      #schedule th, #schedule td {
+        width: calc(100% / 7);
+        padding: 10px;
+        text-align: center;
+        border: 1px solid black;
+      }
+    </style>
   </head>
   <body>
     <div class="container">
@@ -17,20 +34,21 @@
       <!-- Add a form for creating appointments -->
       <div>
         <button id="next"> =&gt; </button>
-        <table id="schedule">
-          <tr id="schedule-header">
-            {% for i in range(7) %}
-              <th></th>
-            {% endfor %}
-          </tr>
-          <tr>
-            {% for i in range(7) %}
-              <td></td>
-            {% endfor %}
-          </tr>
-        </table>
+        <div id="schedule-container">
+          <table id="schedule">
+            <tr id="schedule-header">
+              {% for date in dates %}
+                <th>{{ date }}</th>
+              {% endfor %}
+            </tr>
+            <tr>
+              {% for i in range(7) %}
+                <td></td>
+              {% endfor %}
+            </tr>
+          </table>
+        </div>
         <button id="previous"> &lt;= </button>
-
       </div>
       <label for="event-name">Event Name:</label>
       <input type="text" id="event-name" name="event-name">
@@ -42,7 +60,6 @@
       <input type="time" id="event-duration" name="event-duration">
       <br><br>
       <button type="submit">Add Event</button>
-
     </div>
   </body>
 </html>

@@ -1,50 +1,41 @@
 body {
-  font-family: 'Raleway', sans-serif;
-  background-color: #F5F5F5;
-  margin: 0;
-  padding: 0;
-}
+            font-family: Arial, sans-serif;
+            background-color: #F8F8F8;
+            text-align: center;
+            margin-top: 100px;
+        }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Playfair Display', serif;
-  font-weight: bold;
-  color: #333;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  margin-top: 40px;
-}
+        img {
+            width: 150px;
+            margin-bottom: 30px;
+        }
 
-button {
-  border: none;
-  border-radius: 4px;
-  padding: 10px 20px;
-  font-size: 16px;
-  font-family: 'Raleway', sans-serif;
-  font-weight: bold;
-  color: #FFF;
-  background-color: #1E90FF;
-  transition: all 0.3s ease-in-out;
-  cursor: pointer;
-}
+        h1 {
+            font-size: 36px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
 
-button:hover {
-  background-color: #333;
-}
+        p {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 30px;
+        }
 
-input[type="text"],
-input[type="email"],
-input[type="password"] {
-  border: 1px solid #DDD;
-  border-radius: 4px;
-  padding: 10px;
-  font-size: 16px;
-  font-family: 'Raleway', sans-serif;
-  width: 10%;
-  margin-bottom: 20px;
-}
+        button {
+            border: none;
+            border-radius: 4px;
+            padding: 12px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #FFF;
+            background-color: #1E90FF;
+            transition: all 0.3s ease-in-out;
+            cursor: pointer;
+            margin-right: 10px;
+        }
 
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 40px;
-}
+        button:hover {
+            background-color: #333;
+        }
