@@ -7,21 +7,26 @@ app = Flask(__name__)
 
 DB = DBM.Database()
 
+
 @app.route('/main')
 def main_page():
     return render_template('main.html')
+
 
 @app.route('/')
 def home_page():
     return render_template('home.html')
 
+
 @app.route('/login-page')
 def login_page():
     return render_template("login.html")
 
+
 @app.route('/sign-in-page')
 def sign_in_page():
-    return render_template("sign-in.html")
+    return render_template("sign_in.html")
+
 
 @app.route('/api/save-activity', methods=["POST"])
 def post_new_activity():
@@ -29,24 +34,34 @@ def post_new_activity():
     json_data = json.loads(data)
     return json_data
 
+
 @app.route('/api/sign-in', methods=["post"])
 def sign_in_info():
     data = request.data.decode('utf-8')
     json_data = json.loads(data)
-    username = json_data['username']
+    print(json_data)
+    username = json_data["username"]
+    email = json_data['email']
     password = json_data['password']
-    print(username + ", " + password)
-    return render_template('main.html')
+    if DB.sign_in(username, email, password):
+        return '', 200
+    else:
+        return "Invalid credentials", 401
 
-@app.route('/api/login', methods=["post"])
+
+@app.route('/api/login', methods=["POST"])
 def login_info():
     data = request.data.decode('utf-8')
     json_data = json.loads(data)
-    username = json_data['username']
-    password = json_data['password']
+    print(json_data)
     email = json_data['email']
-    print(username + ", " + password + ", " + email)
-    DB.user_exist(email)
+    password = json_data['password']
+
+    if DB.login(email, password):
+        return '', 200
+    else:
+        return "Invalid credentials", 401
+
 
 @app.route('/update_schedule_dates', methods=["post"])
 def update_dates():
@@ -75,13 +90,15 @@ def update_dates():
         # handle missing key errors, e.g. return a 400 Bad Request response
         return make_response(json.dumps({"error": "Missing key in JSON data"}), 400)
 
+
 def last_sunday_date():
     today = datetime.date.today()
     print(today)
-    days_since_sunday = 6-today.weekday()
+    days_since_sunday = 6 - today.weekday()
     print(days_since_sunday)
     last_sunday = today - datetime.timedelta(days=days_since_sunday)
     return last_sunday
+
 
 if __name__ == '__main__':
     app.run(host="127.0.0.1", port=80, debug=True)

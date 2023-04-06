@@ -28,10 +28,12 @@ $(async () => {
     $("#submit-sign-in").on("click", async (event) => {
         const payload = JSON.stringify({
             username: $("#username-sign-in").val(),
+            email: $("#email-sign-in").val(),
             password: $("#password-sign-in").val(),
         });
         console.log(payload);
-        Cookies.set("username", $("#username-sign-in").val());
+        Cookies.set("username", $("#username-login").val());
+        Cookies.set("email", $("#email-sign-in").val());
         Cookies.set("password", $("#password-sign-in").val());
         try {
             const response = await fetch("/api/sign-in", {
@@ -43,36 +45,42 @@ $(async () => {
                 mainPageRedirect();
             } else {
                 console.log("Failed to sign in.");
+                console.log(response)
             }
         } catch (error) {
+            console.log(response)
             console.log("Error:", error);
+
+
         }
     });
 
     $("#submit-login").on("click", async (event) => {
-        const payload = JSON.stringify({
-            username: $("#username-login").val(),
-            password: $("#password-login").val(),
-            email: $("#email-login").val(),
+
+      const payload = {
+        email: $("#email-login").val(),
+        password: $("#password-login").val(),
+      };
+      console.log(payload);
+      Cookies.set("password", $("#password-login").val());
+      Cookies.set("email", $("#email-login").val());
+      try {
+        const response = await fetch("/api/login", {
+          method: "POST",
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
         });
-        console.log(payload);
-        Cookies.set("username", $("#username-login").val());
-        Cookies.set("password", $("#password-login").val());
-        Cookies.set("email", $("#email-login").val());
-        try {
-            const response = await fetch("/api/login", {
-                method: "POST",
-                headers: { 'Content-Type': 'application/json' },
-                body: payload,
-            });
-            if (response.ok) {
-                mainPageRedirect();
-            } else {
-                console.log("Failed to log in.");
-            }
-        } catch (error) {
-            console.log("Error:", error);
+        if (response.ok) {
+          mainPageRedirect();
+        } else {
+          console.log("Failed to login.");
         }
+      } catch (error) {
+        console.log(response)
+        console.log("Error:", error);
+
+
+      }
     });
 
     function updateScheduleHeader() {
