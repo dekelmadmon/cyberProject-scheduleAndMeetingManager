@@ -6,38 +6,33 @@
     <meta charset="UTF-8">
     <title>My Schedule</title>
     <script src="{{url_for('static', filename='script.js')}}"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
-    <style>
-      #schedule-container {
-        width: 100%;
-      }
 
-      #schedule {
-        width: 100%;
-        border-collapse: collapse;
-      }
 
-      #schedule th, #schedule td {
-        width: calc(100% / 7);
-        padding: 10px;
-        text-align: center;
-        border: 1px solid black;
-      }
-    </style>
   </head>
   <body>
     <div class="container">
-      <h1>My Schedule</h1>
-      <!-- Add a calendar component -->
-      <div class="calendar"></div>
-      <!-- Add a form for creating appointments -->
-      <div>
+      <div style="width: 50%;">
+        <h1>My Schedule</h1>
+        <div class="new-activity"></div>
+        <label for="event-name">Event Name:</label>
+        <input type="text" id="event-name" name="event-name">
+        <br><br>
+        <label for="event-date">Event Date:</label>
+        <input type="date" id="event-date" name="event-date">
+        <br><br>
+        <label for="event-duration">Event duration:</label>
+        <input type="time" id="event-duration" name="event-duration">
+        <br><br>
+        <button type="submit">Add Event</button>
+      </div>
+      <div style="width: 50%;">
         <button id="next"> =&gt; </button>
+        <button id="previous"> &lt;= </button>
         <div id="schedule-container">
           <table id="schedule">
             <tr id="schedule-header">
-              {% for date in dates %}
+              {% for i in range(7) %}
                 <th>{{ date }}</th>
               {% endfor %}
             </tr>
@@ -48,18 +43,11 @@
             </tr>
           </table>
         </div>
-        <button id="previous"> &lt;= </button>
+
       </div>
-      <label for="event-name">Event Name:</label>
-      <input type="text" id="event-name" name="event-name">
-      <br><br>
-      <label for="event-date">Event Date:</label>
-      <input type="date" id="event-date" name="event-date">
-      <br><br>
-      <label for="event-duration">Event duration:</label>
-      <input type="time" id="event-duration" name="event-duration">
-      <br><br>
-      <button type="submit">Add Event</button>
     </div>
+  <script>
+      updateScheduleHeader()
+    </script>
   </body>
 </html>
