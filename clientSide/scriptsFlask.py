@@ -32,14 +32,13 @@ def sign_in_page():
 def post_new_activity():
     data = request.data.decode('utf-8')
     json_data = json.loads(data)
-    return json_data
+    return json_data, 200
 
 
-@app.route('/api/sign-in', methods=["post"])
+@app.route('/api/sign-in', methods=["POST"])
 def sign_in_info():
     data = request.data.decode('utf-8')
     json_data = json.loads(data)
-    print(json_data)
     username = json_data["username"]
     email = json_data['email']
     password = json_data['password']
@@ -53,7 +52,6 @@ def sign_in_info():
 def login_info():
     data = request.data.decode('utf-8')
     json_data = json.loads(data)
-    print(json_data)
     email = json_data['email']
     password = json_data['password']
 
@@ -63,39 +61,25 @@ def login_info():
         return "Invalid credentials", 401
 
 
-@app.route('/update_schedule_dates', methods=["post"])
+@app.route('/update_schedule_dates', methods=["POST"])
 def update_dates():
-    """
-    the function gets the number of clicks you did on the week button in the array of dates in json
-    :return: returns an objects of dates to the client to update the dates on the array in html
-    """
     try:
         data = request.data.decode('utf-8')
-        print("data-", data)
         json_data = json.loads(data)
-        print("json data ", json_data["factor"])
-
         last_sunday = last_sunday_date()
-        print(last_sunday)
         response_data = (str(last_sunday + datetime.timedelta(json_data['factor'] - 1)))
         this_date = json.dumps({"data": response_data})
 
-        print("this_date = ", this_date)
-
-        return make_response(this_date)
-    except json.JSONDecodeError as e:
-        # handle JSON decoding errors, e.g. return a 400 Bad Request response
+        return make_response(this_date, 200)
+    except json.JSONDecodeError:
         return make_response(json.dumps({"error": "Invalid JSON data"}), 400)
-    except KeyError as e:
-        # handle missing key errors, e.g. return a 400 Bad Request response
+    except KeyError:
         return make_response(json.dumps({"error": "Missing key in JSON data"}), 400)
 
 
 def last_sunday_date():
     today = datetime.date.today()
-    print(today)
     days_since_sunday = 6 - today.weekday()
-    print(days_since_sunday)
     last_sunday = today - datetime.timedelta(days=days_since_sunday)
     return last_sunday
 

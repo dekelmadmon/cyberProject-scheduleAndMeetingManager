@@ -50,7 +50,7 @@ class Database:
         self.connection.commit()
         self.disconnect()
 
-    def sign_in(self,username, email, password):
+    def sign_in(self, username, email, password):
         """
         Sign up a new user by inserting their details into the database
         """
