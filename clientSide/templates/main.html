@@ -1,53 +1,62 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
-    <link rel="stylesheet" href="{{url_for('static', filename='main_page_style.css')}}" />
-    <meta charset="UTF-8">
-    <title>My Schedule</title>
-    <script src="{{url_for('static', filename='script.js')}}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
-
-
-  </head>
+	<head>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+		<link rel="stylesheet" href="{{url_for('static', filename='main_page_style.css')}}" />
+		<meta charset="UTF-8" />
+		<title>My Schedule</title>
+		<script src="{{url_for('static', filename='script.js')}}"></script>
+		<script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
+	</head>
+	<!DOCTYPE html>
+<html>
   <body>
     <div class="container">
-      <div style="width: 50%;">
+      <div class="left-container">
         <h1>My Schedule</h1>
         <div class="new-activity"></div>
-        <label for="event-name">Event Name:</label>
-        <input type="text" id="event-name" name="event-name">
-        <br><br>
-        <label for="event-date">Event Date:</label>
-        <input type="date" id="event-date" name="event-date">
-        <br><br>
-        <label for="event-duration">Event duration:</label>
-        <input type="time" id="event-duration" name="event-duration">
-        <br><br>
-        <button type="submit">Add Event</button>
-      </div>
-      <div style="width: 50%;">
-        <button id="next"> =&gt; </button>
-        <button id="previous"> &lt;= </button>
-        <div id="schedule-container">
-          <table id="schedule">
-            <tr id="schedule-header">
-              {% for i in range(7) %}
-                <th>{{ date }}</th>
-              {% endfor %}
-            </tr>
-            <tr>
-              {% for i in range(7) %}
-                <td></td>
-              {% endfor %}
-            </tr>
-          </table>
+        <div class="form-group">
+          <label for="event-name">Event Name:</label>
+          <input type="text" id="event-name" name="event-name" />
+        </div>
+        <div class="form-group">
+          <label for="event-date">Event Date:</label>
+          <input type="date" id="event-date" name="event-date" />
+        </div>
+        <div class="form-group">
+          <label for="event-duration">Event Duration:</label>
+          <input type="time" id="event-duration" name="event-duration" />
+        </div>
+        <button class="button-primary" type="submit">Add Event</button>
+        <div class="form-group">
+          <label for="attendee">Meeting Attendee:</label>
+          <input type="email" id="attendee" name="attendee" />
         </div>
 
+        <button class="button-secondary" type="submit">Request Meeting</button>
+      </div>
+      <div class="right-container">
+        <button id="next">=&gt;</button>
+        <button id="previous">&lt;=</button>
+        <div id="schedule-container">
+          <table id="schedule">
+            <thead>
+              <tr>
+                {% for i in range(7) %}
+                <th>{{ date }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                {% for i in range(7) %}
+                <td></td>
+                {% endfor %}
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
-  <script>
-      updateScheduleHeader()
-    </script>
   </body>
 </html>

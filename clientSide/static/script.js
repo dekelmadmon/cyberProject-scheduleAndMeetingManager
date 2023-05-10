@@ -5,9 +5,9 @@ let SOAB = {
 $(async () => {
   $(document).ready(() => {
     function updateScheduleHeader() {
-      console.log('updateScheduleHeader function called');
-      $('#schedule-header th').each(async (index, element) => {
-        console.log('schedule header function called');
+      console.log('updateSchedule function called');
+      $('#schedule th').each(async (index, element) => {
+        console.log('schedule function called');
         try {
           const response = await $.post({
             url: '/update_schedule_dates',
@@ -25,7 +25,7 @@ $(async () => {
           console.log('Error:', error);
         }
       });
-    }
+    }updateScheduleHeader()
 
     $(".activity-text-box").on("keyup", async (event) => {
       const payload = JSON.stringify({
@@ -103,22 +103,37 @@ $(async () => {
 
     $('#next').on("click", async (event) => {
       SOAB.week++;
-      updateScheduleHeader();
-    });
+      updateScheduleHeader()
+    })
 
     $('#previous').on("click", async (event) => {
       SOAB.week--;
-      updateScheduleHeader();
-    });
+      updateScheduleHeader()
+    })
+    const requestButton = $('.button-secondary');
+    requestButton.click(function() {
+        const attendee = $('#attendee').val();
+        const sender = Cookies.get("email");
+      // send the attendee's email address to the Flask server
+      $.ajax({
 
+        url: '/request-meeting',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ attendee: attendee ,
+        sender: sender}),
+
+
+        success: function(data) {
+          console.log(data);
+        }
+      })
+    })
+  })
 })
-})
+
     function mainPageRedirect() {
-      updateScheduleHeader();
-      $(window).on('load', function () {
-        updateScheduleHeader();
-      });
-      window.location.href = "/main";
+        window.location.href = "/main"
     }
 
     function loginPageRedirect () {

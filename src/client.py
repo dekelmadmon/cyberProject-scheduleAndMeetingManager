@@ -4,35 +4,34 @@ import socket
 HOST = 'localhost'
 PORT = 5000
 
-# Create a socket object
-client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+def request_meeting(attendee, sender):
 
-# Connect to the server
-client_socket.connect((HOST, PORT))
+    # Create a socket object
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-# Get the sender and recipient from the user
-sender = input("Enter your name: ")
-recipient = input("Enter the name of the person you want to meet: ")
+    # Connect to the server
+    client_socket.connect((HOST, PORT))
 
-# Create a meeting request
-request = f"{sender},{recipient}"
 
-# Send the meeting request to the server
-client_socket.send(request.encode())
+    # Create a meeting request
+    request = f"{sender},{attendee}"
 
-# Receive the response from the server
-response = client_socket.recv(1024).decode()
+    # Send the meeting request to the server
+    client_socket.send(request.encode())
 
-# Print the response
-print(response)
+    # Receive the response from the server
+    response = client_socket.recv(1024).decode()
 
-thankunext = "reassured"
+    # Print the response
+    print(response)
 
-# Create a meeting request
-request = f"{thankunext}"
+    reassurance = "reassured"
 
-# Send the meeting request to the server
-client_socket.send(request.encode())
+    # Create a meeting request
+    request = f"{reassurance}"
 
-# Close the socket
-client_socket.close()
+    # Send the meeting request to the server
+    client_socket.send(request.encode())
+
+    # Close the socket
+    client_socket.close()

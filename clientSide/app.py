@@ -1,11 +1,9 @@
 import json
 import datetime
 from flask import Flask, render_template, request, make_response
-import sqliteDBModule as DBM
-
+from src import sqliteDBModule as DBM
+from src import client
 app = Flask(__name__)
-
-DB = DBM.Database()
 
 
 @app.route('/main')
@@ -42,21 +40,23 @@ def sign_in_info():
     username = json_data["username"]
     email = json_data['email']
     password = json_data['password']
-    if DB.sign_in(username, email, password):
+    db = DBM.Database()
+    if db.sign_in(username, email, password):
         return '', 200
     else:
-        return "Invalid credentials", 401
+        return 'Invalid credentials or user exists', 401
 
 
 @app.route('/api/login', methods=["POST"])
 def login_info():
     data = request.data.decode('utf-8')
     json_data = json.loads(data)
+    print(json_data)
     email = json_data['email']
     password = json_data['password']
-
-    if DB.login(email, password):
-        return '', 200
+    db = DBM.Database()
+    if db.login_able(email, password):
+        return 'approved', 200
     else:
         return "Invalid credentials", 401
 
@@ -77,11 +77,22 @@ def update_dates():
         return make_response(json.dumps({"error": "Missing key in JSON data"}), 400)
 
 
+
 def last_sunday_date():
     today = datetime.date.today()
-    days_since_sunday = 6 - today.weekday()
+    days_since_sunday = today.weekday() + 1
     last_sunday = today - datetime.timedelta(days=days_since_sunday)
     return last_sunday
+
+
+@app.route('/request-meeting', methods=['POST'])
+def request_meeting():
+    attendee = request.json['attendee']
+    sender = request.json['sender']
+    message = {'type': 'request-meeting', 'attendee': attendee}
+    client.request(attendee, sender)
+    # return a response to the client
+    return {'status': 'ok'}
 
 
 if __name__ == '__main__':

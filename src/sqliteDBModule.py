@@ -55,10 +55,11 @@ class Database:
         Sign up a new user by inserting their details into the database
         """
         if not self.authenticate_user_credentials(email, password):
-            self.insert_to_DB(username, email, password)
+            self.create_user(username, email, password)
             return True
+        return False
 
-    def login(self, email, password):
+    def login_able(self, email, password):
         """
         Log in an existing user by checking their credentials against the database
         """
@@ -80,14 +81,39 @@ class Database:
         self.disconnect()
         return result
 
-    def insert_to_DB(self, username, email, password):
+    def user_exists(self, email):
+        """
+        Check if a user exists in the database based on their email address
+        """
+        self.connect()
+        sqlite_check_user = '''SELECT COUNT(*) FROM Data WHERE userEmail = ?'''
+        sqlite_check_user_args = (email,)
+        self.cursor.execute(sqlite_check_user, sqlite_check_user_args)
+        count = self.cursor.fetchone()[0]
+        self.disconnect()
+        return count > 0
+
+    def create_user(self, username, email, password):
         """
         Insert a new user into the database
         """
-        self.connect()
-        sqlite_insert_user = '''INSERT INTO Data (username, userEmail, userPassword)
-                                VALUES (?, ?, ?)'''
-        sqlite_insert_user_args = (username, email, password)
-        self.cursor.execute(sqlite_insert_user, sqlite_insert_user_args)
-        self.connection.commit()
-        self.disconnect()
+        if not self.user_exists(email):
+            self.connect()
+            sqlite_insert_user = '''INSERT INTO Data (username, userEmail, userPassword)
+                                       VALUES (?, ?, ?)'''
+            sqlite_insert_user_args = (username, email, password)
+            self.cursor.execute(sqlite_insert_user, sqlite_insert_user_args)
+            self.connection.commit()
+            self.disconnect()
+
+    def delete_user(self, email):
+        """
+        Delete a user from the database based on their email address
+        """
+        if self.user_exists(email):
+            self.connect()
+            sqlite_delete_user = '''DELETE FROM Data WHERE userEmail = ?'''
+            sqlite_delete_user_args = (email,)
+            self.cursor.execute(sqlite_delete_user, sqlite_delete_user_args)
+            self.connection.commit()
+            self.disconnect()
