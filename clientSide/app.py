@@ -90,7 +90,7 @@ def request_meeting():
     attendee = request.json['attendee']
     sender = request.json['sender']
     message = {'type': 'request-meeting', 'attendee': attendee}
-    client.request(attendee, sender)
+    client.request_meeting(attendee, sender)
     # return a response to the client
     return {'status': 'ok'}
 
