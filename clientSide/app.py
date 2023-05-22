@@ -89,8 +89,9 @@ def last_sunday_date():
 def request_meeting():
     attendee = request.json['attendee']
     sender = request.json['sender']
+    date = request.json['date']
     message = {'type': 'request-meeting', 'attendee': attendee}
-    client.request_meeting(attendee, sender)
+    client.request_meeting(attendee, sender, date)
     # return a response to the client
     return {'status': 'ok'}
 

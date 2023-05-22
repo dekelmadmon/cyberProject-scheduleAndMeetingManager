@@ -121,7 +121,7 @@ $(async () => {
         method: 'POST',
         contentType: 'application/json',
         data: JSON.stringify({ attendee: attendee ,
-        sender: sender}),
+        sender: sender, date: date}),
 
 
         success: function(data) {

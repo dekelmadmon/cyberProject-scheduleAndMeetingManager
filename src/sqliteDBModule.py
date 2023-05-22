@@ -117,3 +117,35 @@ class Database:
             self.cursor.execute(sqlite_delete_user, sqlite_delete_user_args)
             self.connection.commit()
             self.disconnect()
+
+    def free_time(self, email, meeting_date):
+        """
+        Retrieve the free time of a user on a specific date
+        """
+        # Get the user's activities for the specified date
+        query = '''
+            SELECT startPoint, duration FROM Data
+            WHERE userEmail = ? AND activityDate = ?
+            ORDER BY startPoint
+        '''
+        self.cursor.execute(query, (email, meeting_date))
+        activities = self.cursor.fetchall()
+
+        # Calculate the free time intervals between activities
+        free_time_intervals = []
+        prev_end_time = 0
+
+        for activity in activities:
+            start_time = activity[0]
+            duration = activity[1]
+
+            if start_time > prev_end_time:
+                free_time_intervals.append((prev_end_time, start_time))
+
+            prev_end_time = start_time + duration
+
+        # Check if there is any free time after the last activity
+        if prev_end_time < 24:  # Assuming 24-hour format
+            free_time_intervals.append((prev_end_time, 24))
+
+        return free_time_intervals

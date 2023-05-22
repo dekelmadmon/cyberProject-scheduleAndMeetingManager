@@ -24,16 +24,16 @@ while True:
 
     # Parse the request into sender and recipient
     try:
-        sender, recipient = request.split(',')
+        sender, recipient, date = request.split(',')
     except ValueError:
         print(f"Invalid meeting request received from {address}")
         continue
 
     # Print the request details
-    print(f"Meeting request from {sender} to {recipient}")
+    print(f"Meeting request from {sender} to {recipient} at {date}")
 
     # Send a response back to the sender
-    response = f"Meeting request sent from {sender} to {recipient}"
+    response = f"Meeting request sent from {sender} to {recipient} at {date}"
     client_socket.send(response.encode())
 
     # Wait for reassurance response
@@ -44,6 +44,7 @@ while True:
 
     # Close the client socket
     client_socket.close()
+
 
 # Close the server socket
 server_socket.close()

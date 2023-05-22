@@ -4,7 +4,7 @@ import socket
 HOST = 'localhost'
 PORT = 5000
 
-def request_meeting(attendee, sender):
+def request_meeting(attendee, sender, date):
 
     # Create a socket object
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -14,7 +14,7 @@ def request_meeting(attendee, sender):
 
 
     # Create a meeting request
-    request = f"{sender},{attendee}"
+    request = f"{sender},{attendee},{date}"
 
     # Send the meeting request to the server
     client_socket.send(request.encode())
