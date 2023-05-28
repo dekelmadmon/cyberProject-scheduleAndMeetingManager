@@ -69,6 +69,7 @@ $(async () => {
         } else {
           console.log("Failed to sign in.");
           console.log(response);
+          alert("Invalid credentials or user exists already")
         }
       } catch (error) {
         console.log("Error:", error);

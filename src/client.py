@@ -1,37 +1,43 @@
 import socket
 
-# Set the host and port number
-HOST = 'localhost'
-PORT = 5000
+class MeetingRequestClient:
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
+        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-def request_meeting(attendee, sender, date):
+    def request_meeting(self, attendee, sender, date):
+        try:
+            # Connect to the server
+            self.client_socket.connect((self.host, self.port))
 
-    # Create a socket object
-    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            # Create a meeting request
+            request = f"{sender},{attendee},{date}"
 
-    # Connect to the server
-    client_socket.connect((HOST, PORT))
+            # Send the meeting request to the server
+            self.client_socket.send(request.encode())
 
+            # Receive the response from the server
+            response = self.client_socket.recv(1024).decode()
 
-    # Create a meeting request
-    request = f"{sender},{attendee},{date}"
+            # Print the response
+            print(response)
 
-    # Send the meeting request to the server
-    client_socket.send(request.encode())
+            reassurance = "reassured"
 
-    # Receive the response from the server
-    response = client_socket.recv(1024).decode()
+            # Create a meeting request
+            request = f"{reassurance}"
 
-    # Print the response
-    print(response)
+            # Send the meeting request to the server
+            self.client_socket.send(request.encode())
 
-    reassurance = "reassured"
+        except ConnectionRefusedError:
+            print("Failed to connect to the server.")
 
-    # Create a meeting request
-    request = f"{reassurance}"
+        finally:
+            # Close the socket
+            self.client_socket.close()
 
-    # Send the meeting request to the server
-    client_socket.send(request.encode())
-
-    # Close the socket
-    client_socket.close()
+# Usage
+client = MeetingRequestClient('localhost', 5000)
+client.request_meeting('John', 'Alice', '2023-06-01')

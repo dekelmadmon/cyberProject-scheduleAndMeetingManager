@@ -1,50 +1,62 @@
 import socket
 
-# Define the server's host and port number
-HOST = 'localhost'
-PORT = 5000
+class MeetingRequestServer:
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
+        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server_socket.bind((self.host, self.port))
+        self.clients = []
 
-# Create a socket object
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    def start(self):
+        self.server_socket.listen()
+        print(f"Server listening on {self.host}:{self.port}")
 
-# Bind the socket to the host and port
-server_socket.bind((HOST, PORT))
+        while True:
+            client_socket, address = self.server_socket.accept()
+            print(f"Connected to {address}")
+            self.clients.append(client_socket)
 
-# Start listening for incoming connections
-server_socket.listen()
-print(f"Server listening on {HOST}:{PORT}")
+            client_handler = ClientHandler(client_socket, address)
+            client_handler.start()
 
-while True:
-    # Accept a connection
-    client_socket, address = server_socket.accept()
-    print(f"Connected to {address}")
-
-    # Receive a meeting request from the client
-    request = client_socket.recv(1024).decode()
-
-    # Parse the request into sender and recipient
-    try:
-        sender, recipient, date = request.split(',')
-    except ValueError:
-        print(f"Invalid meeting request received from {address}")
-        continue
-
-    # Print the request details
-    print(f"Meeting request from {sender} to {recipient} at {date}")
-
-    # Send a response back to the sender
-    response = f"Meeting request sent from {sender} to {recipient} at {date}"
-    client_socket.send(response.encode())
-
-    # Wait for reassurance response
-    reassurance_response = client_socket.recv(1024).decode()
-
-    # Print the reassurance message from the client
-    print(reassurance_response)
-
-    # Close the client socket
-    client_socket.close()
+    def stop(self):
+        for client_socket in self.clients:
+            client_socket.close()
+        self.server_socket.close()
 
 
-# Close the server socket
-server_socket.close()
+class ClientHandler(threading.Thread):
+    def __init__(self, client_socket, address):
+        super().__init__()
+        self.client_socket = client_socket
+        self.address = address
+
+    def run(self):
+        while True:
+            request = self.client_socket.recv(1024).decode()
+
+            if not request:
+                print(f"Connection closed by {self.address}")
+                break
+
+            try:
+                sender, recipient, date = request.split(',')
+            except ValueError:
+                print(f"Invalid meeting request received from {self.address}")
+                continue
+
+            print(f"Meeting request from {sender} to {recipient} at {date}")
+
+            response = f"Meeting request sent from {sender} to {recipient} at {date}"
+            self.client_socket.send(response.encode())
+
+            reassurance_response = self.client_socket.recv(1024).decode()
+            print(reassurance_response)
+
+        self.client_socket.close()
+
+
+# Usage
+server = MeetingRequestServer('localhost', 5000)
+server.start()
