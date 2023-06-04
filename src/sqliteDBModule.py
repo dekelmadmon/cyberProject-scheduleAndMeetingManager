@@ -58,12 +58,6 @@ class Database:
             return True
         return False
 
-    def login_able(self, email, password):
-        """
-        Log in an existing user by checking their credentials against the database
-        """
-        return self.authenticate_user_credentials(email, password)
-
     def authenticate_user_credentials(self, email, password):
         """
         Check if user with given email and password exists in the database

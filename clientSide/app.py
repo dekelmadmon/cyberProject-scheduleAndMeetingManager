@@ -59,7 +59,7 @@ class MeetingSchedulerApp:
         email = json_data.get('email')
         password = json_data.get('password')
         db = DBM.Database()
-        if db.login_able(email, password):
+        if db.authenticate_user_credentials(email, password):
             response = jsonify(response='Login successful')
             self.logger.info('Login response: %s', response.json)
             return response, 200
