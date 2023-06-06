@@ -20,6 +20,7 @@ class MeetingSchedulerApp:
         self.app.route('/api/sign-in', methods=["POST"])(self.sign_in_info)
         self.app.route('/update_schedule_dates', methods=["POST"])(self.update_dates)
         self.app.route('/request-meeting', methods=['POST'])(self.request_meeting)
+        self.app.route('/api/get-activities', methods=['GET'])(self.get_activities_by_date)
 
     def setup_logging(self):
         logging.basicConfig(level=logging.INFO)
@@ -121,6 +122,12 @@ class MeetingSchedulerApp:
         response = jsonify(response='Meeting requested successfully')
         self.logger.info('Request meeting response: %s', response.json)
         return response, 200
+    def get_activities_by_date(self):
+        date = request.args.get('date')
+        useremail = request.args.get('useremail')
+        db = DBM.Database()
+        activities = db.get_activities_by_date(date, useremail)
+        return jsonify(activities)
 
 
 if __name__ == '__main__':

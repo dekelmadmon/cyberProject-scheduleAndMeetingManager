@@ -142,3 +142,14 @@ class Database:
             free_time_intervals.append((prev_end_time, 24))
 
         return free_time_intervals
+
+    def get_activities_by_date(self, date, useremail):
+        """
+        Retrieve activities from the database for a specific date
+        """
+        self.connect()
+        query = "SELECT * FROM Data WHERE activityDate = ? and WHERE useremail = ?"
+        self.cursor.execute(query, (date,useremail))
+        activities = self.cursor.fetchall()
+        self.disconnect()
+        return activities
