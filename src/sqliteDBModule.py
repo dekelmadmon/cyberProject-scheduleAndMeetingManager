@@ -30,9 +30,18 @@ class Database:
                 print("SQLite Database Version is: ", record)
         except sqlite3.Error as error:
             print("Error while connecting to sqlite", error)
+            self.reset_database()
 
     def disconnect(self):
         self.connection.close()
+
+    def reset_database(self):
+        """
+        Delete the existing SQLite database file and create a new one.
+        """
+        self.disconnect()
+        os.remove(self.database_path)
+        self.connect()
 
     def enter_new_activity(self, client_name, client_email, client_password, activity_name, activity_date,
                            activity_starting_point, activity_duration):

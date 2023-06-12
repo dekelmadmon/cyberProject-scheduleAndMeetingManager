@@ -1,4 +1,6 @@
 import socket
+import threading
+
 
 class MeetingRequestServer:
     def __init__(self, host, port):
@@ -15,22 +17,17 @@ class MeetingRequestServer:
         while True:
             client_socket, address = self.server_socket.accept()
             print(f"Connected to {address}")
-            self.clients.append(client_socket)
 
             client_handler = ClientHandler(client_socket, address)
+            self.clients.append(client_handler)
             client_handler.start()
-
     def stop(self):
         for client_socket in self.clients:
             client_socket.close()
         self.server_socket.close()
 
 
-class ClientHandler(threading.Thread):
-    def __init__(self, client_socket, address):
-        super().__init__()
-        self.client_socket = client_socket
-        self.address = address
+
 
     def run(self):
         while True:
@@ -55,7 +52,15 @@ class ClientHandler(threading.Thread):
             print(reassurance_response)
 
         self.client_socket.close()
-
+    def find_client(self, username):
+        for client in self.clients:
+            if client.username == username:
+                client.send(invitation)
+class ClientHandler(threading.Thread):
+    def __init__(self, client_socket, address):
+        super().__init__()
+        self.client_socket = client_socket
+        self.address = address
 
 # Usage
 server = MeetingRequestServer('localhost', 5000)

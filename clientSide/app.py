@@ -1,4 +1,6 @@
 import datetime
+import sqlite3
+
 from flask import Flask, render_template, jsonify, request
 from src import sqliteDBModule as DBM
 from src import client
@@ -9,6 +11,18 @@ class MeetingSchedulerApp:
         self.app = Flask(__name__)
         self.setup_routes()
         self.setup_logging()
+        self.db = DBM.Database()
+        self.client = client.MeetingRequestClient('localhost', 5000)  # Create a MeetingRequestClient instance
+    # Existing code...
+
+    def start(self):
+        try:
+            self.app.run(host="127.0.0.1", port=80, debug=True)
+        except sqlite3.DatabaseError:
+            self.logger.error('Error while connecting to SQLite database. Resetting the database...')
+            self.db.reset_database()
+            self.logger.info('Database reset successful. Starting the application...')
+            self.start()
 
     def setup_routes(self):
         self.app.route('/main')(self.main_page)
@@ -25,10 +39,6 @@ class MeetingSchedulerApp:
     def setup_logging(self):
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
-
-    def start(self):
-        self.app.run(host="127.0.0.1", port=80, debug=True)
-
     @staticmethod
     def render_template(template_name):
         return render_template(template_name)
@@ -117,8 +127,7 @@ class MeetingSchedulerApp:
         sender = json_data['sender']
         date = json_data['date']
 
-        message = {'type': 'request-meeting', 'attendee': attendee}
-        client.request_meeting(attendee, sender, date)
+        self.client.request_meeting(attendee, sender, date)  # Call the request_meeting method of MeetingRequestClient
         response = jsonify(response='Meeting requested successfully')
         self.logger.info('Request meeting response: %s', response.json)
         return response, 200

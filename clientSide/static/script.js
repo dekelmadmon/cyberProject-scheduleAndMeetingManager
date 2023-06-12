@@ -115,6 +115,7 @@ $(async () => {
     requestButton.click(function() {
         const attendee = $('#attendee').val();
         const sender = Cookies.get("email");
+        const date = $('#date').val(); // Get the value of the date from an input field
       // send the attendee's email address to the Flask server
       $.ajax({
 

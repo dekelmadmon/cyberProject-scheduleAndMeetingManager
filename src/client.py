@@ -40,4 +40,3 @@ class MeetingRequestClient:
 
 # Usage
 client = MeetingRequestClient('localhost', 5000)
-client.request_meeting('John', 'Alice', '2023-06-01')
