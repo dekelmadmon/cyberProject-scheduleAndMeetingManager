@@ -78,7 +78,7 @@ class ClientHandler(Thread):
             print(recipient_client)
             if recipient_client is not None:
                 # Send meeting invitation to recipient
-                invitation = f"You are invited to a meeting from {sender} at {date}"
+                invitation = f" {sender},{date}"
                 recipient_client.client_socket.send(invitation.encode())
 
                 # Send reassurance response to sender

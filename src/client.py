@@ -1,6 +1,6 @@
 import socket
 from threading import Thread
-
+from clientSide import app
 
 class MeetingRequestClient:
     def __init__(self, host, port, useremail):
@@ -48,9 +48,9 @@ class MeetingRequestClient:
                 if not request:
                     break
 
-                # Check if the received request has the expected format
+                # Check if the received request was for invitation or to reassure the sender
                 if ',' not in request:
-                    print(f"Invalid request received: {request}")
+                    print(f"reassurance: {request}")
                     continue
 
                 # Process the received request
@@ -58,7 +58,8 @@ class MeetingRequestClient:
                 print(f"Received meeting request from {sender} at {date}")
 
                 # You can handle the received meeting request here and take appropriate actions
-
+                MeetingSchedule = app.MeetingSchedulerApp()
+                MeetingSchedule.notifyMeetingRequest(sender,date)
         except ConnectionResetError:
             print("Connection to the server was reset.")
         finally:

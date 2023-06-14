@@ -1,5 +1,7 @@
 import datetime
 import sqlite3
+
+from click import confirm
 from flask import has_request_context
 from flask import Flask, render_template, jsonify, request
 from src import sqliteDBModule as DBM
@@ -167,6 +169,21 @@ class MeetingSchedulerApp:
         db = DBM.Database()
         activities = db.get_activities_by_date(date, useremail)
         return jsonify(activities)
+
+    def notifyMeetingRequest(self,sender,date):
+
+        # Example code to display a confirmation pop-up
+        confirmation = confirm(f"You have a meeting request from {sender} on {date}. Do you want to accept?")
+        if confirmation:
+            # User clicked 'OK' on the confirmation pop-up
+            self.accept_meeting_request()
+            response = jsonify(response='Meeting request accepted')
+        else:
+            # User clicked 'Cancel' on the confirmation pop-up
+            self.decline_meeting_request()
+            response = jsonify(response='Meeting request declined')
+
+        return response, 200
 def main():
     app = MeetingSchedulerApp()
     app.start()
