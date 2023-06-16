@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <meta charset="UTF-8" />
+    <title>My Schedule</title>
+    <script src="{{url_for('static', filename='script.js')}}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
+    <title>Meeting Request</title>
+</head>
+<body>
+    <h1>Meeting Request</h1>
+
+    <p>Sender: <span id="sender"></span></p>
+    <p>Date: <span id="date"></span></p>
+    <p>Do you accept the meeting request at {{ date }} from {{ sender }}</p>
+    <button onclick="acceptMeeting()">Accept</button>
+    <button onclick="declineMeeting()">Decline</button>
+
+
+</body>
+</html>

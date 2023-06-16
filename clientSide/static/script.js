@@ -19,6 +19,11 @@ $(async () => {
       const email = getCookie("email");
 
       // ... existing code ...
+      $.ajaxSetup({
+        xhrFields: {
+          withCredentials: true, // Include cookies in the request
+        },
+      });
 
       $.ajax({
         url: "/update_schedule_dates",
@@ -28,7 +33,6 @@ $(async () => {
         },
         data: JSON.stringify({
           factor: parseFloat(7 * SOAB.week + 1),
-          email: email, // Include the email as part of the request payload
         }),
         dataType: "json",
         success: function (response) {
@@ -40,9 +44,7 @@ $(async () => {
       });
     }
 
-    function getValue(class_name) {
-      return $(class_name).val();
-    }
+
 
     updateScheduleHeader();
 
@@ -56,6 +58,7 @@ $(async () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Cookie: document.cookie, // Include all cookies in the request headers
           },
           body: payload,
         });
@@ -138,32 +141,19 @@ $(async () => {
       const attendee = $("#attendee").val();
       const sender = Cookies.get("email");
       const date = $("#date").val(); // Get the value of the date from an input field
-
-      // Send the attendee's email address to the Flask server
-      const confirmation = window.confirm(`You have a meeting request from ${sender} on ${date}. Do you want to accept?`);
-      if (confirmation) {
-        // User clicked 'OK' on the confirmation pop-up
-        // Perform any desired action, such as accepting the meeting request
-        $.ajax({
-          url: "/request-meeting",
-          method: "POST",
-          contentType: "application/json",
-          data: JSON.stringify({ attendee: attendee, sender: sender, date: date }),
-          success: function (data) {
-            // Display the meeting request response
-            console.log(data);
-
-            // Check if the meeting request was successful
-            if (data.response === 'Meeting requested successfully') {
-              console.log("Meeting request accepted");
-            }
-          }
-        });
-      } else {
-        // User clicked 'Cancel' on the confirmation pop-up
-        // Perform any desired action, such as declining the meeting request
-        console.log("Meeting request declined");
-      }
+      // send the attendee's email address to the Flask server
+      $.ajax({
+        url: "/request-meeting",
+        method: "POST",
+        contentType: "application/json",
+        headers: {
+          Cookie: `email=${sender}`, // Include the email cookie in the request headers
+        },
+        data: JSON.stringify({ attendee: attendee, sender: sender, date: date }),
+        success: function (data) {
+          console.log(data);
+        },
+      });
     });
   });
 });
@@ -178,4 +168,12 @@ function loginPageRedirect() {
 
 function signInPageRedirect() {
   window.location.href = "/sign-in-page";
+}
+function acceptMeeting() {
+    alert(`Meeting request accepted from ${sender} at ${date}`);
+}
+
+// Function to handle meeting decline
+function declineMeeting() {
+    alert(`Meeting request declined from ${sender} at ${date}`);
 }

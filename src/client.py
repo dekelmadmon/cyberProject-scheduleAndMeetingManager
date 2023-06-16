@@ -3,7 +3,7 @@ from threading import Thread
 from clientSide import app
 
 class MeetingRequestClient:
-    def __init__(self, host, port, useremail):
+    def __init__(self, host, port, useremail, app):
         self.host = host
         self.port = port
         self.useremail = useremail
@@ -14,7 +14,7 @@ class MeetingRequestClient:
 
         # Send the useremail to the server after connection
         self.client_socket.sendall(self.useremail.encode())
-
+        self.app = app
         # Receive the response from the server
         response = self.client_socket.recv(1024)
         print(response.decode())  # Print the server response
@@ -58,8 +58,7 @@ class MeetingRequestClient:
                 print(f"Received meeting request from {sender} at {date}")
 
                 # You can handle the received meeting request here and take appropriate actions
-                MeetingSchedule = app.MeetingSchedulerApp()
-                MeetingSchedule.notifyMeetingRequest(sender,date)
+                self.app.notify_meeting_request(sender,date)
         except ConnectionResetError:
             print("Connection to the server was reset.")
         finally:

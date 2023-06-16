@@ -1,13 +1,12 @@
 import datetime
 import json
 import sqlite3
-import threading
 
 from click import confirm
 from flask import has_request_context
 from flask import Flask, render_template, jsonify, request
 from src import sqliteDBModule as DBM
-from src import client_pupet
+from src import client
 import logging
 from sys import argv
 from threading import Thread
@@ -34,10 +33,8 @@ class MeetingSchedulerApp:
 
     def start(self):
         try:
-            flask_thread = threading.Thread(target=self.app.run, kwargs={'host': '127.0.0.1', 'port': int(argv[1])})
-            flask_thread.start()
-
-            self.socket_client()
+            print(argv[1])
+            self.app.run(host='localhost', port=int(argv[1]))
         except sqlite3.DatabaseError:
             self.logger.error('Error while connecting to SQLite database. Resetting the database...')
             self.db.reset_database()
@@ -45,13 +42,8 @@ class MeetingSchedulerApp:
             self.start()
 
     def check_email_cookie(self, response):
-        if has_request_context():
-            cookie_header = request.headers.get('Cookie')
-            if cookie_header is not None:
-                cookie_parts = cookie_header.split('email=')
-                if len(cookie_parts) > 1:
-                    email = cookie_parts[1].split(';')[0]
-                    self.socket_client()
+        if has_request_context() and self.get_email_cookie() is not None:
+            self.socket_client(self.get_email_cookie())
         return response
 
 
@@ -74,16 +66,12 @@ class MeetingSchedulerApp:
 
     def render_notify_meeting_request(self, sender, date):
         return self.notify_meeting_request(sender, date)
-    def socket_client(self):
-        with self.app.app_context():
-            self.email = self.get_email_cookie()
-            if self.email is not None and self.client is None:  # Check if client already exists
-                self.client = client_pupet.SocketClient('localhost', 12345, self.email)
-                client_thread = threading.Thread(target=self.client.start)
-                client_thread.daemon = True
-                client_thread.start()
-                return 'Client created'
-            return 'Client already exists or email was None'
+    def socket_client(self, email):
+        self.email = email
+        if self.email is not None and self.client is None:  # Check if client already exists
+            self.client = client.MeetingRequestClient('localhost', 5002, self.email, self)
+            return 'Client created'
+        return 'Client already exists or email was None'
 
     def get_email_cookie(self):
         email = request.headers.get('Cookie').split('email=')[1].split(';')[0]
@@ -172,7 +160,17 @@ class MeetingSchedulerApp:
         return last_sunday
 
     def request_meeting(self):
-        self.client.send_set_request()
+        json_data = self.get_json_data()
+        required_fields = ['attendee', 'sender', 'date']
+        if not all(field in json_data for field in required_fields):
+            response = jsonify(error='Missing required data in JSON')
+            self.logger.info('Request meeting response: %s', response.json)
+            return response, 400
+
+        attendee = json_data['attendee']
+        sender = json_data['sender']
+        date = json_data['date']
+        self.client.request_meeting(attendee, sender, date)
         response = jsonify(response='Meeting requested successfully')
         self.logger.info('Request meeting response: %s', response.json)
         return response, 200
