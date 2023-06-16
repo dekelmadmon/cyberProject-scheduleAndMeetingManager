@@ -66,7 +66,7 @@ class MeetingSchedulerApp:
         self.app.route('/api/sign-in', methods=["POST"])(self.sign_in_info)
         self.app.route('/update_schedule_dates', methods=["POST"])(self.update_dates)
         self.app.route('/request-meeting', methods=['POST'])(self.request_meeting)
-        self.app.route('/api/get-activities', methods=['GET'])(self.get_activities_by_date)
+        self.app.route('/recieve-meetings', methods=['GET'])(self.recieve_meetings)
         self.app.route('/get_email_cookie', methods=['GET'])(self.get_email_cookie)
         self.app.route('/notify-meeting-request/<sender>/<date>')(self.render_notify_meeting_request)
 
@@ -78,7 +78,7 @@ class MeetingSchedulerApp:
         with self.app.app_context():
             self.email = self.get_email_cookie()
             if self.email is not None and self.client is None:  # Check if client already exists
-                self.client = client_pupet.SocketClient('localhost', 12345, self.email)
+                self.client = client_pupet.SocketClient('localhost', 18080, self.email)
                 client_thread = threading.Thread(target=self.client.start)
                 client_thread.daemon = True
                 client_thread.start()
@@ -172,10 +172,22 @@ class MeetingSchedulerApp:
         return last_sunday
 
     def request_meeting(self):
-        self.client.send_set_request()
-        response = jsonify(response='Meeting requested successfully')
-        self.logger.info('Request meeting response: %s', response.json)
+        attendee = request.json.get("attendee")
+        date = request.json.get("date")
+        if attendee and date:
+            self.client.send_create_invitation(date, attendee)  # Pass the date to the send_create_invitation method
+            response = jsonify(response='Meeting requested successfully')
+            self.logger.info('Request meeting response: %s', response.json)
+            return response, 200
+        self.logger.info('Request meeting response: declined insufficient data')
+        return '', 400
+
+    def recieve_meetings(self):
+        response = self.client.send_receive_invitation()
+        #response = jsonify(response='Check successfully')
+        self.logger.info('Check meetings response: %s', response.json)
         return response, 200
+
 
     def get_activities_by_date(self):
         date = request.args.get('date')

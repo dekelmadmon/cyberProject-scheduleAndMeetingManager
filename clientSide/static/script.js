@@ -139,22 +139,38 @@ $(async () => {
     const requestButton = $(".button-secondary");
     requestButton.click(function () {
       const attendee = $("#attendee").val();
-      const sender = Cookies.get("email");
       const date = $("#date").val(); // Get the value of the date from an input field
       // send the attendee's email address to the Flask server
       $.ajax({
         url: "/request-meeting",
         method: "POST",
         contentType: "application/json",
-        headers: {
-          Cookie: `email=${sender}`, // Include the email cookie in the request headers
-        },
-        data: JSON.stringify({ attendee: attendee, sender: sender, date: date }),
+
+        data: JSON.stringify({ attendee: attendee, date: date }),
         success: function (data) {
           console.log(data);
         },
       });
     });
+
+    const recieveMeetings = $(".button-recieve-meetings");
+    recieveMeetings.on("click", async (event) => {
+      let response;
+      try {
+        response = await fetch("/recieve-meetings", {
+          method: "GET",
+        });
+        if (response.ok) {
+          console.log("Response:", response);
+        } else {
+          console.log("Error Response:", response);
+        }
+      } catch (error) {
+        console.log("Error:", error);
+        console.log("Response:", response);
+      }
+    });
+
   });
 });
 

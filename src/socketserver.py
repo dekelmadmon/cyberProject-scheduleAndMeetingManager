@@ -92,4 +92,4 @@ class ClientHandler(Thread):
 
 
 # Usage
-server = MeetingRequestServer('localhost', 5002)
+server = MeetingRequestServer('localhost', 18080)

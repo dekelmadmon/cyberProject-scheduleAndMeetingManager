@@ -1,3 +1,4 @@
+import json
 import socket
 import threading
 import time
@@ -12,24 +13,37 @@ class SocketClient:
         self.email = email
 
     def start(self):
-        while True:
-            self.send_get_request()
+        '''while True:
+            self.send_receive_invitation()
             time.sleep(5)  # Wait for 5 seconds before sending the next ping
+        '''
+    def send_create_invitation(self, date, recipient):
+        request_data = {
+            "request_type": "create_invitation",
+            "email": self.email,
+            "date": date,
+            "recipient": recipient,
+        }
+        request_json = json.dumps(request_data)
 
-    def send_get_request(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
             client_socket.connect((self.host, self.port))
-            client_socket.sendall(self.email.encode("utf-8"))
-            request = "GET"
-            client_socket.send(request.encode("utf-8"))
-            client_socket.close()
+            client_socket.sendall(request_json.encode("utf-8"))
+            response = client_socket.recv(1024).decode("utf-8").strip()
+            print(f"Received response: {response}")
 
-    def send_set_request(self):
+    def send_receive_invitation(self):
+        request_data = {
+            "request_type": "receive_invitation",
+            "email": self.email
+        }
+        request_json = json.dumps(request_data)
+
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
             client_socket.connect((self.host, self.port))
-            client_socket.sendall(self.email.encode("utf-8"))
-            request = "SET"
-            client_socket.send(request.encode("utf-8"))
-            client_socket.close()
+            client_socket.sendall(request_json.encode("utf-8"))
+            response = client_socket.recv(1024).decode("utf-8").strip()
+            print(f"Received response: {response}")
+            return response
 
 
