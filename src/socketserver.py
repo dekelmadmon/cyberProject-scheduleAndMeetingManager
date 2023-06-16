@@ -1,95 +1,129 @@
+import json
 import socket
-from threading import Thread
+import threading
+import sqlite3
+import tempfile
+import os
 
-class MeetingRequestServer:
+
+class SocketServer:
     def __init__(self, host, port):
         self.host = host
         self.port = port
-        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server_socket.bind((self.host, self.port))
-        self.clients = []
-        socket_server_thread = Thread(target=self.start)
-        socket_server_thread.start()
+        self.counter = 0
+
+        self.temp_file = tempfile.NamedTemporaryFile(delete=True)
+        self.db_path = self.temp_file.name
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.db_path = os.path.join(self.temp_dir.name, "database.db")
 
     def start(self):
-        self.server_socket.listen()
+        server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server_socket.bind((self.host, self.port))
+        server_socket.listen(1)
         print(f"Server listening on {self.host}:{self.port}")
 
+        threading.Thread(target=self.accept_connections, args=(server_socket,), daemon=True).start()
+
+    def accept_connections(self, server_socket):
         while True:
-            client_socket, address = self.server_socket.accept()
-            print(f"Connected to {address}")
+            try:
+                client_socket, client_address = server_socket.accept()
+                print(f"Connected to client: {client_address[0]}:{client_address[1]}")
 
-            useremail = client_socket.recv(1024).decode()  # Receive useremail from client
-            print(f"Received useremail: {useremail}")
+                threading.Thread(target=self.handle_request, args=(client_socket,), daemon=True).start()
+            except json.JSONDecodeError:
+                print("Connection failed!")
 
-            client_socket.send("Useremail received".encode())  # Send response to the client
+    def handle_request(self, client_socket):
+        request_json = client_socket.recv(1024).decode("utf-8").strip()
+        print(f"Received JSON: {request_json}")
 
-            client_handler = ClientHandler(client_socket, address, self, useremail)  # Pass the server object and useremail
-            client_handler.start()  # Start the client handler thread
+        try:
+            request_data = json.loads(request_json)
+            request_type = request_data.get("request_type")
+            email = request_data.get("email")
+        except json.JSONDecodeError:
+            print("Invalid JSON format received")
+            return
 
-            self.clients.append(client_handler)
-            represent = repr(client_handler)
-            print(represent)
+        if request_type and email:
+            print(f"Received request: {request_type} from {email}, counter is {self.counter}")
+            response = self.process_request(request_data)
+            client_socket.sendall(response.encode("utf-8"))
+        else:
+            print("Incomplete request received")
 
-    def stop(self):
-        for client_handler in self.clients:
-            client_handler.client_socket.close()
-        self.server_socket.close()
+    def process_request(self, request_data):
+        request_type = request_data.get("request_type")
+        if request_type == "create_invitation":
+            self.save_invitation(request_data)
+            return "Invitation created"
+        elif request_type == "receive_invitation":
+            self.counter -= 1
+            return "Invitation received"
+        else:
+            print("Invalid request type received")
+            return "Invalid request type"
 
-    def find_client(self, useremail):
-        for client_handler in self.clients:
-            if client_handler.useremail == useremail:
-                return client_handler
-        return None
+    def create_temporary_database(self):
+        # Connect to the temporary SQLite database
+        connection = sqlite3.connect(self.db_path)
+        cursor = connection.cursor()
 
+        # Create a table to store the requests
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS requests (
+                address REAL,
+                sender TEXT,
+                recipient TEXT,
+                date TEXT,
+                status TEXT
+            )
+            """
+        )
 
-class ClientHandler(Thread):
-    def __init__(self, client_socket, address, server, useremail):
-        super().__init__()
-        self.client_socket = client_socket
-        self.address = address
-        self.server = server
-        self.useremail = useremail
+        # Commit the changes and close the database connection
+        connection.commit()
+        connection.close()
 
-    def __repr__(self):
-        return f"ClientHandler object - Address: {self.address}, Useremail: {self.useremail}"
+    def save_invitation(self, request_data):
+        # Connect to the temporary SQLite database
+        connection = sqlite3.connect(self.db_path)
+        cursor = connection.cursor()
+
+        # Insert a new row into the requests table
+        cursor.execute(
+            """
+            INSERT INTO requests (sender, recipient, date, status)
+            VALUES (?, ?, ?, ?)
+            """,
+            (request_data.get("email"), request_data.get("recipient"), request_data.get("date"), "pending"),
+        )
+
+        # Commit the changes and close the database connection
+        connection.commit()
+        connection.close()
+
+    def cleanup_temporary_database(self):
+        self.temp_file.close()
 
     def run(self):
-        while True:
-            request = self.client_socket.recv(1024).decode()
+        try:
+            self.create_temporary_database()
 
-            if not request:
-                print(f"Connection closed by {self.address}")
-                break
+            # Start the server
+            self.start()
 
-            if request == "reassured":
-                reassurance_response = "Reassurance received successfully"
-                self.client_socket.send(reassurance_response.encode())
-                continue
+            # Keep the server running
+            while True:
+                pass
 
-            try:
-                sender, recipient, date = request.split(',')
-            except ValueError:
-                print(f"Invalid meeting request received from {self.address}")
-                continue
-
-            # Find the client handler for the recipient
-            recipient_client = self.server.find_client(recipient)
-            print(recipient_client)
-            if recipient_client is not None:
-                # Send meeting invitation to recipient
-                invitation = f" {sender},{date}"
-                recipient_client.client_socket.send(invitation.encode())
-
-                # Send reassurance response to sender
-                reassurance_response = "Meeting invitation sent successfully"
-                self.client_socket.send(reassurance_response.encode())
-            else:
-                reassurance_response = f"Recipient {recipient} not found"
-                self.client_socket.send(reassurance_response.encode())
-
-        self.client_socket.close()
+        finally:
+            self.cleanup_temporary_database()
 
 
-# Usage
-server = MeetingRequestServer('localhost', 18080)
+# Usage example
+server = SocketServer("localhost", 18080)
+server.run()
