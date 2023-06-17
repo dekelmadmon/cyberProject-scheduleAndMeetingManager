@@ -16,14 +16,34 @@ class MeetingManager(ManagerInterface):
         connection = sqlite3.connect(self.db_path)
         cursor = connection.cursor()
 
-        # Insert a new row if it doesn't exist
+        # Check if the row already exists
         cursor.execute(
             """
-            INSERT OR IGNORE INTO invitations (clientemail, recipient, date, status)
-            VALUES (?, ?, ?, ?)
+            SELECT COUNT(*) FROM invitations
+            WHERE clientemail = ? AND recipient = ? AND date = ?
             """,
-            (data.get("email"), data.get("recipient"), data.get("date"), "pending"),
+            (data.get("email"), data.get("recipient"), data.get("date")),
         )
+        row_count = cursor.fetchone()[0]
+
+        if row_count == 0:
+            # Insert a new row if it doesn't exist
+            cursor.execute(
+                """
+                INSERT INTO invitations (clientemail, recipient, date, status)
+                VALUES (?, ?, ?, ?)
+                """,
+                (data.get("email"), data.get("recipient"), data.get("date"), "pending"),
+            )
+        else:
+            # Update the existing row
+            cursor.execute(
+                """
+                UPDATE invitations SET status = ?
+                WHERE clientemail = ? AND recipient = ? AND date = ?
+                """,
+                ("pending", data.get("email"), data.get("recipient"), data.get("date")),
+            )
 
         # Commit the changes
         connection.commit()
