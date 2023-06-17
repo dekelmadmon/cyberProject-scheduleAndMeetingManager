@@ -156,23 +156,71 @@ $(async () => {
     const recieveMeetings = $(".button-recieve-meetings");
     recieveMeetings.on("click", async (event) => {
       let response;
-      try {
-        response = await fetch("/recieve-meetings", {
-          method: "GET",
-        });
+    fetch("/recieve-meetings", {
+      method: "GET"
+    })
+      .then(response => {
         if (response.ok) {
-          console.log("Response:", response);
+          // Check if the response was successful (status code in the range of 200-299)
+          // For JSON response:
+          return response.json(); // Returns a promise that resolves to the parsed JSON data
+          // For other response types:
+          // return response.text(); // Returns a promise that resolves to the response text
+          // return response.blob(); // Returns a promise that resolves to a Blob object
         } else {
-          console.log("Error Response:", response);
+          throw new Error("Request failed with status code " + response.status);
         }
-      } catch (error) {
-        console.log("Error:", error);
-        console.log("Response:", response);
-      }
+      })
+      .then(data => {
+        // Process the retrieved data
+        console.log(data);
+        populateMeetingsTable(data)
+      })
+      .catch(error => {
+        console.error(error);
+      });
     });
 
   });
 });
+
+function populateMeetingsTable(jsonData) {
+    debugger;
+    // Parse the JSON data
+    const data = JSON.parse(JSON.stringify(jsonData));
+
+    // Create the HTML table structure
+    const table = document.createElement("table");
+    const thead = document.createElement("thead");
+    const tbody = document.createElement("tbody");
+
+    // Generate table header based on the keys of the JSON object
+    const headers = Object.keys(data[0]);
+    const headerRow = document.createElement("tr");
+    headers.forEach(header => {
+      const th = document.createElement("th");
+      th.textContent = header;
+      headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    // Generate table rows and cells based on the values of each key
+    data.forEach(item => {
+      const row = document.createElement("tr");
+      headers.forEach(header => {
+        const cell = document.createElement("td");
+        cell.textContent = item[header];
+        row.appendChild(cell);
+      });
+      tbody.appendChild(row);
+    });
+    table.appendChild(tbody);
+
+    // Append the table to the container element in the HTML document
+    const tableContainer = document.getElementById("table-container");
+    tableContainer.appendChild(table);
+}
 
 function mainPageRedirect() {
   window.location.href = "/main";

@@ -7,6 +7,17 @@
 		<title>My Schedule</title>
 		<script src="{{url_for('static', filename='script.js')}}"></script>
 		<script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
+
+
+        <style>
+          table {
+            border-collapse: collapse;
+          }
+          th, td {
+            border: 1px solid black;
+            padding: 8px;
+          }
+        </style>
 	</head>
 	<!DOCTYPE html>
 <html>
@@ -39,28 +50,7 @@
         <button class="button-secondary" type="submit">Request Meeting</button>
         <button class="button-recieve-meetings" type="submit">Recive Meetings</button>
       </div>
-      <div class="right-container">
-        <button id="next">=&gt;</button>
-        <button id="previous">&lt;=</button>
-        <div id="schedule-container">
-          <table id="schedule">
-            <thead>
-              <tr>
-                {% for i in range(7) %}
-                <th>{{ date }}</th>
-                {% endfor %}
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                {% for i in range(7) %}
-                <td>{{ activities }}</td>
-                {% endfor %}
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <div id="table-container"></div>
     </div>
   </body>
 </html>

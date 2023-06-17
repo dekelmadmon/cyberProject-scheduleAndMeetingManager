@@ -5,13 +5,15 @@ import sqlite3
 import tempfile
 import os
 
+from src.managers.meetingManager import MeetingManager
+
 
 class SocketServer:
     def __init__(self, host, port):
         self.host = host
         self.port = port
         self.counter = 0
-
+        self.meetingManager = None
         self.temp_file = tempfile.NamedTemporaryFile(delete=True)
         self.db_path = self.temp_file.name
         self.temp_dir = tempfile.TemporaryDirectory()
@@ -49,19 +51,24 @@ class SocketServer:
 
         if request_type and email:
             print(f"Received request: {request_type} from {email}, counter is {self.counter}")
-            response = self.process_request(request_data)
-            client_socket.sendall(response.encode("utf-8"))
+            json_response = self.process_request(request_data)
+            print(f"Response JSON: {json_response}")
+            client_socket.sendall(json_response.encode())
         else:
             print("Incomplete request received")
 
     def process_request(self, request_data):
+        if self.meetingManager is None:  # Check if client already exists
+            self.meetingManager = MeetingManager(self.db_path)
+
         request_type = request_data.get("request_type")
         if request_type == "create_invitation":
-            self.save_invitation(request_data)
+            self.meetingManager.create(request_data)
             return "Invitation created"
         elif request_type == "receive_invitation":
-            self.counter -= 1
-            return "Invitation received"
+            return self.meetingManager.retrieve(request_data)
+        elif request_type == "update_invitation":
+            return self.meetingManager.update(request_data)
         else:
             print("Invalid request type received")
             return "Invalid request type"
@@ -71,35 +78,38 @@ class SocketServer:
         connection = sqlite3.connect(self.db_path)
         cursor = connection.cursor()
 
-        # Create a table to store the requests
+        # Create the client_database table
         cursor.execute(
             """
-            CREATE TABLE IF NOT EXISTS requests (
-                address REAL,
-                sender TEXT,
-                recipient TEXT,
-                date TEXT,
-                status TEXT
+            CREATE TABLE IF NOT EXISTS client_database (
+                clientemail TEXT PRIMARY KEY,
+                username TEXT,
+                password TEXT
             )
             """
         )
 
-        # Commit the changes and close the database connection
-        connection.commit()
-        connection.close()
-
-    def save_invitation(self, request_data):
-        # Connect to the temporary SQLite database
-        connection = sqlite3.connect(self.db_path)
-        cursor = connection.cursor()
-
-        # Insert a new row into the requests table
+        # Create the meetings table
         cursor.execute(
             """
-            INSERT INTO requests (sender, recipient, date, status)
-            VALUES (?, ?, ?, ?)
-            """,
-            (request_data.get("email"), request_data.get("recipient"), request_data.get("date"), "pending"),
+            CREATE TABLE IF NOT EXISTS meetings (
+                meeting_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                participants TEXT
+            )
+            """
+        )
+
+        # Create the invitations table
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS invitations (
+                clientemail TEXT,
+                recipient TEXT,
+                date TEXT,
+                status TEXT,
+                FOREIGN KEY (clientemail) REFERENCES client_database(clientemail)
+            )
+            """
         )
 
         # Commit the changes and close the database connection
@@ -122,6 +132,7 @@ class SocketServer:
 
         finally:
             self.cleanup_temporary_database()
+
 
 
 # Usage example

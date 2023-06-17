@@ -7,7 +7,7 @@ from click import confirm
 from flask import has_request_context
 from flask import Flask, render_template, jsonify, request
 from src import sqliteDBModule as DBM
-from src import client_pupet
+from src import client
 import logging
 from sys import argv
 from threading import Thread
@@ -22,7 +22,6 @@ class MeetingSchedulerApp:
         self.setup_logging()
         self.db = DBM.Database()
         self.client = None
-        self.email = None
         self.app.config['SERVER_NAME'] = '127.0.0.1:' + argv[1]
         self.app.config['APPLICATION_ROOT'] = '/'  # Replace with your desired application root
         self.app.config['PREFERRED_URL_SCHEME'] = 'http'  # Replace with your preferred URL scheme (http or https)
@@ -76,9 +75,8 @@ class MeetingSchedulerApp:
         return self.notify_meeting_request(sender, date)
     def socket_client(self):
         with self.app.app_context():
-            self.email = self.get_email_cookie()
-            if self.email is not None and self.client is None:  # Check if client already exists
-                self.client = client_pupet.SocketClient('localhost', 18080, self.email)
+            if self.client is None:  # Check if client already exists
+                self.client = client.SocketClient('localhost', 18080)
                 client_thread = threading.Thread(target=self.client.start)
                 client_thread.daemon = True
                 client_thread.start()
@@ -86,8 +84,12 @@ class MeetingSchedulerApp:
             return 'Client already exists or email was None'
 
     def get_email_cookie(self):
-        email = request.headers.get('Cookie').split('email=')[1].split(';')[0]
-        return email
+        if has_request_context() and request.headers.get('Cookie'):
+            cookie_parts = request.headers.get('Cookie').split('email=')
+            if len(cookie_parts) > 1:
+                email = cookie_parts[1].split(';')[0]
+                return email
+        return None
 
     def setup_logging(self):
         logging.basicConfig(level=logging.INFO)
@@ -123,10 +125,10 @@ class MeetingSchedulerApp:
 
     def login_info(self):
         json_data = self.get_json_data()
-        self.email = json_data.get('email')
+        email = json_data.get('email')
         password = json_data.get('password')
         db = DBM.Database()
-        if db.authenticate_user_credentials(self.email, password):
+        if db.authenticate_user_credentials(email, password):
             response = jsonify(response='Login successful')
             self.logger.info('Login response: %s', response.json)
             return response, 200
@@ -138,10 +140,10 @@ class MeetingSchedulerApp:
     def sign_in_info(self):
         json_data = self.get_json_data()
         username = json_data.get('username')
-        self.email = json_data.get('email')
+        email = json_data.get('email')
         password = json_data.get('password')
         db = DBM.Database()
-        if db.sign_in(username, self.email, password):
+        if db.sign_in(username, email, password):
             response = jsonify(response='Sign-in successful')
             self.logger.info('Sign-in response: %s', response.json)
             return response, 200
@@ -172,10 +174,11 @@ class MeetingSchedulerApp:
         return last_sunday
 
     def request_meeting(self):
+        requester = self.get_email_cookie()
         attendee = request.json.get("attendee")
         date = request.json.get("date")
         if attendee and date:
-            self.client.send_create_invitation(date, attendee)  # Pass the date to the send_create_invitation method
+            self.client.send_create_invitation(requester, date, attendee)  # Pass the date to the send_create_invitation method
             response = jsonify(response='Meeting requested successfully')
             self.logger.info('Request meeting response: %s', response.json)
             return response, 200
@@ -183,10 +186,15 @@ class MeetingSchedulerApp:
         return '', 400
 
     def recieve_meetings(self):
-        response = self.client.send_receive_invitation()
-        #response = jsonify(response='Check successfully')
-        self.logger.info('Check meetings response: %s', response.json)
-        return response, 200
+        requester = self.get_email_cookie()
+        response = self.client.send_receive_invitation(requester)
+
+        # Ensure response is a JSON object
+        if isinstance(response, str):
+            response = json.loads(response)
+
+        self.logger.info('Check meetings response: %s', response)
+        return jsonify(response), 200
 
 
     def get_activities_by_date(self):
