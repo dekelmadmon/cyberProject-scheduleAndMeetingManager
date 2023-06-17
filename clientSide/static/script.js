@@ -33,7 +33,6 @@ $(async () => {
       console.log(payload);
       Cookies.set("username", $("#username-sign-in").val());
       Cookies.set("email", $("#email-sign-in").val());
-      Cookies.set("password", $("#password-sign-in").val());
       try {
         const response = await fetch("/api/sign-in", {
           method: "POST",
@@ -58,7 +57,6 @@ $(async () => {
         password: $("#password-login").val(),
       };
       console.log(payload);
-      Cookies.set("password", $("#password-login").val());
       Cookies.set("email", $("#email-login").val());
       let response;
       try {

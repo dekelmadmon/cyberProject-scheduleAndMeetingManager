@@ -103,7 +103,8 @@ class Database:
                 query = '''INSERT INTO Data (username, userEmail, userPassword)
                                        VALUES (?, ?, ?)'''
                 cursor.execute(query, (username, email, password))
-                cursor.fetchone()[0]
+
+                connection.commit()
             except sqlite3.Error as error:
                 print("Error while connecting to sqlite", error)
             finally:

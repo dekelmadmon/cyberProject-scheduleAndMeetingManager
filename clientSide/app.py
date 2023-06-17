@@ -155,7 +155,7 @@ class MeetingSchedulerApp:
         email = json_data.get('email')
         password = json_data.get('password')
 
-        if self.db.sign_in(username, email, password):
+        if (self.db.sign_in(username, email, password)):
             response = jsonify(response='Sign-in successful')
             self.logger.info('Sign-in response: %s', response.json)
             return response, 200
