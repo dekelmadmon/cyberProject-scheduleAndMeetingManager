@@ -1,9 +1,8 @@
 import json
 import socket
 import threading
-import sqlite3
-import tempfile
 import os
+from sys import argv
 
 from src.managers.meetingManager import MeetingManager
 
@@ -12,12 +11,7 @@ class SocketServer:
     def __init__(self, host, port):
         self.host = host
         self.port = port
-        self.counter = 0
         self.meetingManager = None
-        self.temp_file = tempfile.NamedTemporaryFile(delete=True)
-        self.db_path = self.temp_file.name
-        self.temp_dir = tempfile.TemporaryDirectory()
-        self.db_path = os.path.join(self.temp_dir.name, "database.db")
 
     def start(self):
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -50,7 +44,7 @@ class SocketServer:
             return
 
         if request_type and email:
-            print(f"Received request: {request_type} from {email}, counter is {self.counter}")
+            print(f"Received request: {request_type} from {email}")
             json_response = self.process_request(request_data)
             print(f"Response JSON: {json_response}")
             client_socket.sendall(json_response.encode())
@@ -59,7 +53,7 @@ class SocketServer:
 
     def process_request(self, request_data):
         if self.meetingManager is None:  # Check if client already exists
-            self.meetingManager = MeetingManager(self.db_path)
+            self.meetingManager = MeetingManager()
 
         request_type = request_data.get("request_type")
         if request_type == "create_invitation":
@@ -74,68 +68,19 @@ class SocketServer:
             print("Invalid request type received")
             return "Invalid request type"
 
-    def create_temporary_database(self):
-        # Connect to the temporary SQLite database
-        connection = sqlite3.connect(self.db_path)
-        cursor = connection.cursor()
-
-        # Create the client_database table
-        cursor.execute(
-            """
-            CREATE TABLE IF NOT EXISTS client_database (
-                clientemail TEXT PRIMARY KEY,
-                username TEXT,
-                password TEXT
-            )
-            """
-        )
-
-        # Create the meetings table
-        cursor.execute(
-            """
-            CREATE TABLE IF NOT EXISTS meetings (
-                meeting_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                participants TEXT
-            )
-            """
-        )
-
-        # Create the invitations table
-        cursor.execute(
-            """
-            CREATE TABLE IF NOT EXISTS invitations (
-                clientemail TEXT,
-                recipient TEXT,
-                date TEXT,
-                status TEXT,
-                FOREIGN KEY (clientemail) REFERENCES client_database(clientemail)
-            )
-            """
-        )
-
-        # Commit the changes and close the database connection
-        connection.commit()
-        connection.close()
-
-    def cleanup_temporary_database(self):
-        self.temp_file.close()
-
     def run(self):
-        try:
-            self.create_temporary_database()
+        # Start the server
+        self.start()
 
-            # Start the server
-            self.start()
+        # Keep the server running
+        while True:
+            pass
 
-            # Keep the server running
-            while True:
-                pass
-
-        finally:
-            self.cleanup_temporary_database()
-
-
+def get_ipv4():
+    hostname = socket.gethostname()
+    ip_address = socket.gethostbyname(hostname)
+    return ip_address
 
 # Usage example
-server = SocketServer("localhost", 18080)
+server = SocketServer(get_ipv4(), 18080)
 server.run()

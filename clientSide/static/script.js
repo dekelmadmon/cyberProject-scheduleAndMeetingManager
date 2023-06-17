@@ -24,6 +24,7 @@ $(async () => {
     updateEmail();
 
     $("#submit-sign-in").on("click", async (event) => {
+    debugger;
       const payload = JSON.stringify({
         username: $("#username-sign-in").val(),
         email: $("#email-sign-in").val(),

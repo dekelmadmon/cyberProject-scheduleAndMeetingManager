@@ -2,17 +2,22 @@ import datetime
 import json
 import sqlite3
 import threading
+import socket
 
 from click import confirm
 from flask import has_request_context
 from flask import Flask, render_template, jsonify, request
+from flask import Flask, session, redirect, url_for
+from flask_session import Session
 from src import sqliteDBModule as DBM
 from src import client
 import logging
 from sys import argv
-from threading import Thread
-from jinja2 import Template
 
+def get_ipv4():
+    hostname = socket.gethostname()
+    ip_address = socket.gethostbyname(hostname)
+    return ip_address
 
 
 class MeetingSchedulerApp:
@@ -22,9 +27,12 @@ class MeetingSchedulerApp:
         self.setup_logging()
         self.db = DBM.Database()
         self.client = None
-        self.app.config['SERVER_NAME'] = '127.0.0.1:' + argv[1]
+        self.app.secret_key = 'DekelIs%^#King'
+        self.app.config['SERVER_NAME'] = get_ipv4() + ':' + argv[1]
         self.app.config['APPLICATION_ROOT'] = '/'  # Replace with your desired application root
         self.app.config['PREFERRED_URL_SCHEME'] = 'http'  # Replace with your preferred URL scheme (http or https)
+        self.server_host = argv[2]
+        self.server_port = int(argv[3])
         @self.app.after_request
         def after_request_handler(response):
             return self.check_email_cookie(response)
@@ -33,7 +41,7 @@ class MeetingSchedulerApp:
 
     def start(self):
         try:
-            flask_thread = threading.Thread(target=self.app.run, kwargs={'host': '127.0.0.1', 'port': int(argv[1])})
+            flask_thread = threading.Thread(target=self.app.run, kwargs={'host': get_ipv4(), 'port': int(argv[1])})
             flask_thread.start()
 
             self.socket_client()
@@ -56,10 +64,13 @@ class MeetingSchedulerApp:
 
 
     def setup_routes(self):
+        #Pages
         self.app.route('/main')(self.main_page)
         self.app.route('/')(self.home_page)
         self.app.route('/login-page')(self.login_page)
         self.app.route('/sign-in-page')(self.sign_in_page)
+
+        #Actions
         self.app.route('/api/login', methods=["POST"])(self.login_info)
         self.app.route('/api/sign-in', methods=["POST"])(self.sign_in_info)
         self.app.route('/request-meeting', methods=['POST'])(self.request_meeting)
@@ -75,7 +86,7 @@ class MeetingSchedulerApp:
     def socket_client(self):
         with self.app.app_context():
             if self.client is None:  # Check if client already exists
-                self.client = client.SocketClient('localhost', 18080)
+                self.client = client.SocketClient(self.server_host, self.server_port)
                 client_thread = threading.Thread(target=self.client.start)
                 client_thread.daemon = True
                 client_thread.start()
@@ -100,6 +111,12 @@ class MeetingSchedulerApp:
     @staticmethod
     def render_meeting_request(sender,date):
         return render_template('meeting_request.html', sender=sender, date=date)
+
+    def checkUserInSession(self, user):
+        if 'username' in session:
+            return session['username'] == user
+        return False
+
     def home_page(self):
         return self.render_template('home.html')
 
@@ -110,7 +127,9 @@ class MeetingSchedulerApp:
         return self.render_template('sign_in.html')
 
     def main_page(self):
-        return self.render_template('main.html')
+        if (self.checkUserInSession(self.get_email_cookie())):
+            return self.render_template('main.html')
+        return self.render_template('home.html')
 
     @staticmethod
     def get_json_data():
@@ -120,9 +139,9 @@ class MeetingSchedulerApp:
         json_data = self.get_json_data()
         email = json_data.get('email')
         password = json_data.get('password')
-        db = DBM.Database()
-        if db.authenticate_user_credentials(email, password):
+        if self.db.authenticate_user_credentials(email, password):
             response = jsonify(response='Login successful')
+            session['username'] = email
             self.logger.info('Login response: %s', response.json)
             return response, 200
         else:
@@ -135,8 +154,8 @@ class MeetingSchedulerApp:
         username = json_data.get('username')
         email = json_data.get('email')
         password = json_data.get('password')
-        db = DBM.Database()
-        if db.sign_in(username, email, password):
+
+        if self.db.sign_in(username, email, password):
             response = jsonify(response='Sign-in successful')
             self.logger.info('Sign-in response: %s', response.json)
             return response, 200

@@ -1,5 +1,5 @@
 class ManagerInterface:
-    def __init__(self, db_path):
+    def __init__(self):
         print("Init")
 
     def create(self, data):

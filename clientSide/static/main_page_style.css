@@ -120,12 +120,6 @@ input[type="time"] {
   align-items: center;
 }
 
-#schedule-container {
-  width: 50%;
-  margin-left: 5%;
-  margin-top: 20px;
-}
-
 #schedule th, #schedule td {
   width: calc(100% / 7);
   padding: 20px;
@@ -137,4 +131,30 @@ input[type="time"] {
 form {
   width: 50%;
   margin-right: auto;
+}
+
+#schedule-container {
+  width: 45%; /* Adjust the width as needed */
+  margin-left: 5%;
+  margin-top: 20px;
+}
+
+#schedule {
+  width: 100%; /* Change to 100% to fit the container */
+}
+
+#table-container {
+  width: 45%; /* Adjust the width as needed */
+  margin-left: 5%;
+  margin-top: 20px;
+}
+
+#table-container table {
+  border-collapse: collapse;
+  width: 100%; /* Change to 100% to fit the container */
+}
+
+#table-container th, #table-container td {
+  border: 1px solid black;
+  padding: 8px;
 }

@@ -6,34 +6,15 @@ class Database:
     def __init__(self):
         """Initialize database connection and create Data table if it doesn't exist"""
         self.database_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'db', 'SQLite_Python.db'))
-        self.connection = None
-        self.cursor = None
+        self.create()
 
     def connect(self):
-        self.connection = sqlite3.connect(self.database_path, check_same_thread=False)
-        self.cursor = self.connection.cursor()
-        try:
-            with self.connection:
-                sqlite_create_table_query = '''CREATE TABLE IF NOT EXISTS Data (
-                                                id INTEGER PRIMARY KEY,
-                                                username TEXT,
-                                                userEmail TEXT NOT NULL UNIQUE,
-                                                userPassword TEXT NOT NULL,
-                                                userActivity TEXT,
-                                                activityDate TEXT,
-                                                startPoint REAL,
-                                                duration REAL);'''
-                self.cursor.execute(sqlite_create_table_query)
-                sqlite_select_query = "SELECT sqlite_version();"
-                self.cursor.execute(sqlite_select_query)
-                record = self.cursor.fetchone()
-                print("SQLite Database Version is: ", record)
-        except sqlite3.Error as error:
-            print("Error while connecting to sqlite", error)
-            self.reset_database()
+        connection = sqlite3.connect(self.database_path, check_same_thread=False)
+        #cursor = self.connection.cursor()
+        return connection
 
-    def disconnect(self):
-        self.connection.close()
+    def disconnect(self, connection):
+        connection.close()
 
     def reset_database(self):
         """
@@ -58,28 +39,54 @@ class Database:
         """
         Check if user with given email and password exists in the database
         """
-        self.connect()
-        query = '''
-            SELECT EXISTS (
-                SELECT 1 FROM Data
-                WHERE userEmail = ? AND userPassword = ?
-            )
-        '''
-        self.cursor.execute(query, (email, password))
-        result = bool(self.cursor.fetchone()[0])
-        self.disconnect()
+        connection = None
+        cursor = None
+        result = None
+        try:
+            connection = self.connect()
+            cursor = connection.cursor()
+
+            query = '''
+                        SELECT EXISTS (
+                            SELECT 1 FROM Data
+                            WHERE userEmail = ? AND userPassword = ?
+                        )
+                    '''
+            cursor.execute(query, (email, password))
+            result = bool(cursor.fetchone()[0])
+        except sqlite3.Error as error:
+            print("Error while connecting to sqlite", error)
+        finally:
+            if (cursor != None):
+                cursor.close()
+            if (connection != None):
+                self.disconnect(connection)
         return result
 
     def user_exists(self, email):
         """
         Check if a user exists in the database based on their email address
         """
-        self.connect()
-        sqlite_check_user = '''SELECT COUNT(*) FROM Data WHERE userEmail = ?'''
-        sqlite_check_user_args = (email,)
-        self.cursor.execute(sqlite_check_user, sqlite_check_user_args)
-        count = self.cursor.fetchone()[0]
-        self.disconnect()
+        connection = None
+        cursor = None
+        count = None
+        try:
+            connection = self.connect()
+            cursor = connection.cursor()
+
+            query = """
+                SELECT COUNT(*) FROM Data WHERE userEmail = ?
+                """
+            cursor.execute(query, (email, ))
+            count = cursor.fetchone()[0]
+        except sqlite3.Error as error:
+            print("Error while connecting to sqlite", error)
+        finally:
+            if (cursor != None):
+                cursor.close()
+            if (connection != None):
+                self.disconnect(connection)
+
         return count > 0
 
     def create_user(self, username, email, password):
@@ -87,23 +94,104 @@ class Database:
         Insert a new user into the database
         """
         if not self.user_exists(email):
-            self.connect()
-            sqlite_insert_user = '''INSERT INTO Data (username, userEmail, userPassword)
+            connection = None
+            cursor = None
+            try:
+                connection = self.connect()
+                cursor = connection.cursor()
+
+                query = '''INSERT INTO Data (username, userEmail, userPassword)
                                        VALUES (?, ?, ?)'''
-            sqlite_insert_user_args = (username, email, password)
-            self.cursor.execute(sqlite_insert_user, sqlite_insert_user_args)
-            self.connection.commit()
-            self.disconnect()
+                cursor.execute(query, (username, email, password))
+                cursor.fetchone()[0]
+            except sqlite3.Error as error:
+                print("Error while connecting to sqlite", error)
+            finally:
+                if (cursor != None):
+                    cursor.close()
+                if (connection != None):
+                    self.disconnect(connection)
 
     def delete_user(self, email):
         """
         Delete a user from the database based on their email address
         """
         if self.user_exists(email):
-            self.connect()
-            sqlite_delete_user = '''DELETE FROM Data WHERE userEmail = ?'''
-            sqlite_delete_user_args = (email,)
-            self.cursor.execute(sqlite_delete_user, sqlite_delete_user_args)
-            self.connection.commit()
-            self.disconnect()
+            connection = None
+            cursor = None
+            try:
+                connection = self.connect()
+                cursor = connection.cursor()
 
+                query = '''DELETE FROM Data WHERE userEmail = ?'''
+                cursor.execute(query, (email))
+            except sqlite3.Error as error:
+                print("Error while connecting to sqlite", error)
+            finally:
+                if (cursor != None):
+                    cursor.close()
+                if (connection != None):
+                    self.disconnect(connection)
+
+    def create(self):
+        connection = None
+        cursor = None
+        try:
+            connection = self.connect()
+            cursor = connection.cursor()
+
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS Data (
+                    id INTEGER PRIMARY KEY,
+                    username TEXT,
+                    userEmail TEXT NOT NULL UNIQUE,
+                    userPassword TEXT NOT NULL
+                )
+                """
+            )
+
+            # Create the client_database table
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS client_database (
+                    clientemail TEXT PRIMARY KEY,
+                    username TEXT,
+                    password TEXT
+                )
+                """
+            )
+
+            # Create the meetings table
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS meetings (
+                    meeting_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    participants TEXT
+                )
+                """
+            )
+
+            # Create the invitations table
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS invitations (
+                    clientemail TEXT,
+                    recipient TEXT,
+                    date TEXT,
+                    status TEXT,
+                    FOREIGN KEY (clientemail) REFERENCES client_database(clientemail)
+                )
+                """
+            )
+
+            # Commit the changes and close the database connection
+            connection.commit()
+
+        except sqlite3.Error as error:
+            print("Error while connecting to sqlite", error)
+        finally:
+            if (cursor != None):
+                cursor.close()
+            if (connection != None):
+                self.disconnect(connection)
