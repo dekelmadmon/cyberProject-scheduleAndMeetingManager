@@ -27,6 +27,23 @@ class SocketClient:
             response = client_socket.recv(1024).decode("utf-8").strip()
             print(f"Received response: {response}")
 
+    def send_update_invitation(self, user, requester, date, recipient, status):
+        request_data = {
+            "request_type": "update_invitation",
+            "email": user,
+            "requester": requester,
+            "date": date,
+            "recipient": recipient,
+            "status": status,
+        }
+        request_json = json.dumps(request_data)
+
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
+            client_socket.connect((self.host, self.port))
+            client_socket.sendall(request_json.encode("utf-8"))
+            response = client_socket.recv(1024).decode("utf-8").strip()
+            print(f"Received response: {response}")
+
     def send_receive_invitation(self, email):
         request_data = {
             "request_type": "receive_invitation",

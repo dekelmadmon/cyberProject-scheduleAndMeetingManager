@@ -2,6 +2,8 @@ let SOAB = {
   week: 0,
 };
 
+var email;
+
 $(async () => {
   $(document).ready(() => {
     // Function to get the value of a cookie by name
@@ -16,7 +18,7 @@ $(async () => {
 
     function updateScheduleHeader() {
       // Get the email cookie
-      const email = getCookie("email");
+      this.email = getCookie("email");
 
       // ... existing code ...
       $.ajaxSetup({
@@ -185,42 +187,114 @@ $(async () => {
 });
 
 function populateMeetingsTable(jsonData) {
-    debugger;
-    // Parse the JSON data
-    const data = JSON.parse(JSON.stringify(jsonData));
+  // Parse the JSON data
+  const data = JSON.parse(JSON.stringify(jsonData));
 
-    // Create the HTML table structure
-    const table = document.createElement("table");
-    const thead = document.createElement("thead");
-    const tbody = document.createElement("tbody");
+  // Create the HTML table structure
+  const table = document.createElement("table");
+  const thead = document.createElement("thead");
+  const tbody = document.createElement("tbody");
 
-    // Generate table header based on the keys of the JSON object
-    const headers = Object.keys(data[0]);
-    const headerRow = document.createElement("tr");
+  // Generate table header based on the keys of the JSON object
+  const headers = Object.keys(data[0]);
+  const headerRow = document.createElement("tr");
+  headers.forEach(header => {
+    const th = document.createElement("th");
+    th.textContent = header;
+    headerRow.appendChild(th);
+  });
+  // Add an extra column for buttons
+    const th = document.createElement("th");
+    th.textContent = "Actions";
+    headerRow.appendChild(th);
+
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
+
+  // Generate table rows and cells based on the values of each key
+  data.forEach(item => {
+    const row = document.createElement("tr");
     headers.forEach(header => {
-      const th = document.createElement("th");
-      th.textContent = header;
-      headerRow.appendChild(th);
+      const cell = document.createElement("td");
+      cell.textContent = item[header];
+      row.appendChild(cell);
     });
-    thead.appendChild(headerRow);
-    table.appendChild(thead);
 
-    // Generate table rows and cells based on the values of each key
-    data.forEach(item => {
-      const row = document.createElement("tr");
-      headers.forEach(header => {
-        const cell = document.createElement("td");
-        cell.textContent = item[header];
-        row.appendChild(cell);
-      });
-      tbody.appendChild(row);
-    });
-    table.appendChild(tbody);
+    const requester = item["requester"]
+    const reciever = item["reciever"]
+    const date = item["date"]
+    const status = item["status"]
 
-    // Append the table to the container element in the HTML document
-    const tableContainer = document.getElementById("table-container");
-    tableContainer.appendChild(table);
+    // Add buttons based on conditions
+    const actionsCell = document.createElement("td");
+    if (status === "Canceled") {
+        actionsCell.innerHTML = "-";
+    } else if (requester === this.email) {
+      // Requester is the client, add cancel button
+      const cancelButton = document.createElement("button");
+      cancelButton.textContent = "Cancel";
+      cancelButton.addEventListener("click", () => {
+          // send the attendee's email address to the Flask server
+          $.ajax({
+            url: "/update-meeting",
+            method: "POST",
+            contentType: "application/json",
+
+            data: JSON.stringify({ requester: requester, attendee: reciever, date: date, status: "Canceled" }),
+            success: function (data) {
+              console.log(data);
+            },
+          });
+        });
+      actionsCell.appendChild(cancelButton);
+    } else {
+      // Recipient is the client, add approve and decline buttons
+      const approveButton = document.createElement("button");
+      approveButton.textContent = "Approve";
+      approveButton.addEventListener("click", () => {
+          // send the attendee's email address to the Flask server
+          $.ajax({
+            url: "/update-meeting",
+            method: "POST",
+            contentType: "application/json",
+
+            data: JSON.stringify({ requester: requester, attendee: reciever, date: date, status: "Approved" }),
+            success: function (data) {
+              console.log(data);
+            },
+          });
+        });
+      actionsCell.appendChild(approveButton);
+
+      const declineButton = document.createElement("button");
+      declineButton.textContent = "Decline";
+      declineButton.addEventListener("click", () => {
+          // send the attendee's email address to the Flask server
+          $.ajax({
+            url: "/update-meeting",
+            method: "POST",
+            contentType: "application/json",
+
+            data: JSON.stringify({ requester: requester, attendee: reciever, date: date, status: "Declined" }),
+            success: function (data) {
+              console.log(data);
+            },
+          });
+        });
+      actionsCell.appendChild(declineButton);
+    }
+
+    row.appendChild(actionsCell);
+    tbody.appendChild(row);
+  });
+  table.appendChild(tbody);
+
+  // Append the table to the container element in the HTML document
+  const tableContainer = document.getElementById("table-container");
+  tableContainer.innerHTML = "";
+  tableContainer.appendChild(table);
 }
+
 
 function mainPageRedirect() {
   window.location.href = "/main";

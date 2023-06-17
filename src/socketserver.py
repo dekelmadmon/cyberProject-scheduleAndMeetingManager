@@ -68,7 +68,8 @@ class SocketServer:
         elif request_type == "receive_invitation":
             return self.meetingManager.retrieve(request_data)
         elif request_type == "update_invitation":
-            return self.meetingManager.update(request_data)
+            self.meetingManager.update(request_data)
+            return "Invitation updated"
         else:
             print("Invalid request type received")
             return "Invalid request type"
