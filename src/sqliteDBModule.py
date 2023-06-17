@@ -43,20 +43,7 @@ class Database:
         os.remove(self.database_path)
         self.connect()
 
-    def enter_new_activity(self, client_name, client_email, client_password, activity_name, activity_date,
-                           activity_starting_point, activity_duration):
-        """
-        Insert a new row and store the name of activity, start time, and end time
-        """
-        self.connect()
-        sqlite_insert_new_activity = ('''INSERT INTO Data (username, userEmail, userPassword, userActivity, activityDate, 
-                                            startPoint, duration)
-                                            VALUES (?, ?, ?, ?, ?, ?, ?)''')
-        sqlite_insert_new_activity_args = (client_name, client_email, client_password, activity_name, activity_date,
-                                           activity_starting_point, activity_duration)
-        self.cursor.execute(sqlite_insert_new_activity, sqlite_insert_new_activity_args)
-        self.connection.commit()
-        self.disconnect()
+
 
     def sign_in(self, username, email, password):
         """
@@ -120,45 +107,3 @@ class Database:
             self.connection.commit()
             self.disconnect()
 
-    def free_time(self, email, meeting_date):
-        """
-        Retrieve the free time of a user on a specific date
-        """
-        # Get the user's activities for the specified date
-        query = '''
-            SELECT startPoint, duration FROM Data
-            WHERE userEmail = ? AND activityDate = ?
-            ORDER BY startPoint
-        '''
-        self.cursor.execute(query, (email, meeting_date))
-        activities = self.cursor.fetchall()
-
-        # Calculate the free time intervals between activities
-        free_time_intervals = []
-        prev_end_time = 0
-
-        for activity in activities:
-            start_time = activity[0]
-            duration = activity[1]
-
-            if start_time > prev_end_time:
-                free_time_intervals.append((prev_end_time, start_time))
-
-            prev_end_time = start_time + duration
-
-        # Check if there is any free time after the last activity
-        if prev_end_time < 24:  # Assuming 24-hour format
-            free_time_intervals.append((prev_end_time, 24))
-
-        return free_time_intervals
-
-    def get_activities_by_date(self, date, useremail):
-        """
-        Retrieve activities from the database for a specific date
-        """
-        self.connect()
-        query = "SELECT * FROM Data WHERE activityDate = ? and WHERE useremail = ?"
-        self.cursor.execute(query, (date,useremail))
-        activities = self.cursor.fetchall()
-        self.disconnect()
-        return activities
