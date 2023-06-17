@@ -60,10 +60,8 @@ class MeetingSchedulerApp:
         self.app.route('/')(self.home_page)
         self.app.route('/login-page')(self.login_page)
         self.app.route('/sign-in-page')(self.sign_in_page)
-        self.app.route('/api/save-activity', methods=["POST"])(self.post_new_activity)
         self.app.route('/api/login', methods=["POST"])(self.login_info)
         self.app.route('/api/sign-in', methods=["POST"])(self.sign_in_info)
-        self.app.route('/update_schedule_dates', methods=["POST"])(self.update_dates)
         self.app.route('/request-meeting', methods=['POST'])(self.request_meeting)
         self.app.route('/recieve-meetings', methods=['GET'])(self.recieve_meetings)
         self.app.route('/update-meeting', methods=['POST'])(self.update_meeting)
@@ -118,12 +116,6 @@ class MeetingSchedulerApp:
     def get_json_data():
         return request.get_json()
 
-    def post_new_activity(self):
-        json_data = self.get_json_data()
-        response = jsonify(response='Received new activity: {}'.format(json_data))
-        self.logger.info('Post new activity response: %s', response.json)
-        return response, 200
-
     def login_info(self):
         json_data = self.get_json_data()
         email = json_data.get('email')
@@ -152,27 +144,6 @@ class MeetingSchedulerApp:
             response = jsonify(response='Invalid credentials or user exists')
             self.logger.info('Sign-in response: %s', response.json)
             return response, 401
-
-    def update_dates(self):
-        json_data = self.get_json_data()
-        factor = json_data.get('factor')
-        if factor is None:
-            response = jsonify(error='Missing "factor" in JSON data')
-            self.logger.info('Update dates response: %s', response.json)
-            return response, 400
-
-        last_sunday = self.last_sunday_date()
-        response_data = str(last_sunday + datetime.timedelta(days=factor - 1))
-        response = jsonify(response='Updated dates: {}'.format(response_data))
-        self.logger.info('Update dates response: %s', response.json)
-        return response, 200
-
-    @staticmethod
-    def last_sunday_date():
-        today = datetime.date.today()
-        days_since_sunday = today.weekday() + 1
-        last_sunday = today - datetime.timedelta(days=days_since_sunday)
-        return last_sunday
 
     def request_meeting(self):
         requester = self.get_email_cookie()
@@ -211,19 +182,6 @@ class MeetingSchedulerApp:
 
         self.logger.info('Check meetings response: %s', response)
         return jsonify(response), 200
-
-
-    def get_activities_by_date(self):
-        date = request.args.get('date')
-        useremail = request.args.get('useremail')
-        db = DBM.Database()
-        activities = db.get_activities_by_date(date, useremail)
-        return jsonify(activities)
-
-    def notify_meeting_request(self, sender, date):
-        with self.app.app_context():
-            rendered_template = self.render_meeting_request(sender, date)
-            return rendered_template
 
 def main():
     app = MeetingSchedulerApp()

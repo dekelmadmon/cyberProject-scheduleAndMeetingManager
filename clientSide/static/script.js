@@ -16,63 +16,12 @@ $(async () => {
       return "";
     }
 
-    function updateScheduleHeader() {
+    function updateEmail() {
       // Get the email cookie
-      this.email = getCookie("email");
-
-      // ... existing code ...
-      $.ajaxSetup({
-        xhrFields: {
-          withCredentials: true, // Include cookies in the request
-        },
-      });
-
-      $.ajax({
-        url: "/update_schedule_dates",
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        data: JSON.stringify({
-          factor: parseFloat(7 * SOAB.week + 1),
-        }),
-        dataType: "json",
-        success: function (response) {
-          // ... remaining code ...
-        },
-        error: function (error) {
-          console.log("Error:", error);
-        },
-      });
+      email = getCookie("email");
     }
 
-
-
-    updateScheduleHeader();
-
-    $(".activity-text-box").on("keyup", async (event) => {
-      const payload = JSON.stringify({
-        name: event.target.value,
-      });
-      console.log(payload);
-      try {
-        const response = await fetch("/api/save-activity", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Cookie: document.cookie, // Include all cookies in the request headers
-          },
-          body: payload,
-        });
-        if (response.ok) {
-          console.log("Activity saved successfully.");
-        } else {
-          console.log("Failed to save activity.");
-        }
-      } catch (error) {
-        console.log("Error:", error);
-      }
-    });
+    updateEmail();
 
     $("#submit-sign-in").on("click", async (event) => {
       const payload = JSON.stringify({
@@ -128,16 +77,6 @@ $(async () => {
       }
     });
 
-    $("#next").on("click", async (event) => {
-      SOAB.week++;
-      updateScheduleHeader();
-    });
-
-    $("#previous").on("click", async (event) => {
-      SOAB.week--;
-      updateScheduleHeader();
-    });
-
     const requestButton = $(".button-secondary");
     requestButton.click(function () {
       const attendee = $("#attendee").val();
@@ -155,34 +94,34 @@ $(async () => {
       });
     });
 
-    const recieveMeetings = $(".button-recieve-meetings");
-    recieveMeetings.on("click", async (event) => {
-      let response;
-    fetch("/recieve-meetings", {
-      method: "GET"
-    })
-      .then(response => {
-        if (response.ok) {
-          // Check if the response was successful (status code in the range of 200-299)
-          // For JSON response:
-          return response.json(); // Returns a promise that resolves to the parsed JSON data
-          // For other response types:
-          // return response.text(); // Returns a promise that resolves to the response text
-          // return response.blob(); // Returns a promise that resolves to a Blob object
-        } else {
-          throw new Error("Request failed with status code " + response.status);
-        }
+    function fetchMeetings() {
+      fetch("/recieve-meetings", {
+        method: "GET"
       })
-      .then(data => {
-        // Process the retrieved data
-        console.log(data);
-        populateMeetingsTable(data)
-      })
-      .catch(error => {
-        console.error(error);
-      });
-    });
+        .then(response => {
+          if (response.ok) {
+            return response.json();
+          } else {
+            throw new Error("Request failed with status code " + response.status);
+          }
+        })
+        .then(data => {
+          console.log(data);
+          populateMeetingsTable(data);
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    }
 
+    // Check if the current page URL is main.html before executing the function
+    if (window.location.pathname === "/main") {
+      // Execute the function immediately
+      fetchMeetings();
+
+      // Execute the function every 10 seconds
+      setInterval(fetchMeetings, 3000);
+    }
   });
 });
 
@@ -229,7 +168,7 @@ function populateMeetingsTable(jsonData) {
     const actionsCell = document.createElement("td");
     if (status === "Canceled") {
         actionsCell.innerHTML = "-";
-    } else if (requester === this.email) {
+    } else if (requester === email) {
       // Requester is the client, add cancel button
       const cancelButton = document.createElement("button");
       cancelButton.textContent = "Cancel";
