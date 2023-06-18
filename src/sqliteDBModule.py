@@ -9,11 +9,17 @@ class Database:
         self.create()
 
     def connect(self):
+        """
+        Connect to the SQLite database.
+        Returns a database connection object.
+        """
         connection = sqlite3.connect(self.database_path, check_same_thread=False)
-        #cursor = self.connection.cursor()
         return connection
 
     def disconnect(self, connection):
+        """
+        Disconnect from the SQLite database.
+        """
         connection.close()
 
     def reset_database(self):
@@ -24,10 +30,10 @@ class Database:
         os.remove(self.database_path)
         self.connect()
 
-
     def authenticate_user_credentials(self, email, password):
         """
-        Check if user with given email and password exists in the database
+        Check if a user with the given email and password exists in the database.
+        Returns True if the user exists, False otherwise.
         """
         connection = None
         cursor = None
@@ -47,15 +53,16 @@ class Database:
         except sqlite3.Error as error:
             print("Error while connecting to sqlite", error)
         finally:
-            if (cursor != None):
+            if cursor is not None:
                 cursor.close()
-            if (connection != None):
+            if connection is not None:
                 self.disconnect(connection)
         return result
 
     def user_exists(self, email):
         """
-        Check if a user exists in the database based on their email address
+        Check if a user exists in the database based on their email address.
+        Returns True if the user exists, False otherwise.
         """
         connection = None
         cursor = None
@@ -72,16 +79,16 @@ class Database:
         except sqlite3.Error as error:
             print("Error while connecting to sqlite", error)
         finally:
-            if (cursor != None):
+            if cursor is not None:
                 cursor.close()
-            if (connection != None):
+            if connection is not None:
                 self.disconnect(connection)
 
         return count > 0
 
     def create_user(self, username, email, password):
         """
-        Insert a new user into the database
+        Insert a new user into the database.
         """
         if not self.user_exists(email):
             connection = None
@@ -98,14 +105,14 @@ class Database:
             except sqlite3.Error as error:
                 print("Error while connecting to sqlite", error)
             finally:
-                if (cursor != None):
+                if cursor is not None:
                     cursor.close()
-                if (connection != None):
+                if connection is not None:
                     self.disconnect(connection)
 
     def delete_user(self, email):
         """
-        Delete a user from the database based on their email address
+        Delete a user from the database based on their email address.
         """
         if self.user_exists(email):
             connection = None
@@ -115,16 +122,19 @@ class Database:
                 cursor = connection.cursor()
 
                 query = '''DELETE FROM Data WHERE userEmail = ?'''
-                cursor.execute(query, (email))
+                cursor.execute(query, (email,))
             except sqlite3.Error as error:
                 print("Error while connecting to sqlite", error)
             finally:
-                if (cursor != None):
+                if cursor is not None:
                     cursor.close()
-                if (connection != None):
+                if connection is not None:
                     self.disconnect(connection)
 
     def create(self):
+        """
+        Create the necessary tables in the SQLite database if they don't exist.
+        """
         connection = None
         cursor = None
         try:
@@ -182,7 +192,7 @@ class Database:
         except sqlite3.Error as error:
             print("Error while connecting to sqlite", error)
         finally:
-            if (cursor != None):
+            if cursor is not None:
                 cursor.close()
-            if (connection != None):
+            if connection is not None:
                 self.disconnect(connection)
