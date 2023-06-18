@@ -5,6 +5,7 @@ import os
 from sys import argv
 
 from src.managers.meetingManager import MeetingManager
+from src.managers.loginManager import LoginManager
 
 
 class SocketServer:
@@ -12,6 +13,7 @@ class SocketServer:
         self.host = host
         self.port = port
         self.meetingManager = None
+        self.loginManager = None
 
     def start(self):
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -54,6 +56,8 @@ class SocketServer:
     def process_request(self, request_data):
         if self.meetingManager is None:  # Check if client already exists
             self.meetingManager = MeetingManager()
+        if self.loginManager is None:
+            self.loginManager = LoginManager()
 
         request_type = request_data.get("request_type")
         if request_type == "create_invitation":
@@ -64,6 +68,10 @@ class SocketServer:
         elif request_type == "update_invitation":
             self.meetingManager.update(request_data)
             return "Invitation updated"
+        elif request_type == "login":
+            return self.loginManager.retrieve(request_data)
+        elif request_type == "sign_in":
+            return self.loginManager.create(request_data)
         else:
             print("Invalid request type received")
             return "Invalid request type"

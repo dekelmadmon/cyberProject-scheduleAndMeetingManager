@@ -59,3 +59,33 @@ class SocketClient:
             return response
 
 
+    def send_login_request(self, email, password):
+        request_data = {
+            "request_type": "login",
+            "email": email,
+            "password": password
+        }
+        request_json = json.dumps(request_data)
+
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
+            client_socket.connect((self.host, self.port))
+            client_socket.sendall(request_json.encode("utf-8"))
+            response = client_socket.recv(1024).decode("utf-8").strip()
+            print(f"Received response: {response}")
+            return response
+
+    def send_sign_in_request(self, username, email, password):
+        request_data = {
+            "request_type": "sign_in",
+            "email": email,
+            "password": password,
+            "username": username
+        }
+        request_json = json.dumps(request_data)
+
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
+            client_socket.connect((self.host, self.port))
+            client_socket.sendall(request_json.encode("utf-8"))
+            response = client_socket.recv(1024).decode("utf-8").strip()
+            print(f"Received response: {response}")
+            return response

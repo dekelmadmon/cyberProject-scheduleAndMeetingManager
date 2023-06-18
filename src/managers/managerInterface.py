@@ -1,7 +1,9 @@
-class ManagerInterface:
+from abc import ABC, abstractmethod
+
+class ManagerInterface(ABC):
     def __init__(self):
         print("Init")
-
+    @abstractmethod
     def create(self, data):
         print("Parent method")
 

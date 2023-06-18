@@ -1,15 +1,13 @@
-import datetime
 import json
 import sqlite3
 import threading
 import socket
 
-from click import confirm
+
 from flask import has_request_context
-from flask import Flask, render_template, jsonify, request
-from flask import Flask, session, redirect, url_for
-from flask_session import Session
-from src import sqliteDBModule as DBM
+from flask import render_template, jsonify, request
+from flask import Flask, session
+
 from src import client
 import logging
 from sys import argv
@@ -25,7 +23,6 @@ class MeetingSchedulerApp:
         self.app = Flask(__name__)
         self.setup_routes()
         self.setup_logging()
-        self.db = DBM.Database()
         self.client = None
         self.app.secret_key = 'DekelIs%^#King'
         self.app.config['SERVER_NAME'] = get_ipv4() + ':' + argv[1]
@@ -40,16 +37,10 @@ class MeetingSchedulerApp:
     # Rest of the code...
 
     def start(self):
-        try:
-            flask_thread = threading.Thread(target=self.app.run, kwargs={'host': get_ipv4(), 'port': int(argv[1])})
-            flask_thread.start()
+        flask_thread = threading.Thread(target=self.app.run, kwargs={'host': get_ipv4(), 'port': int(argv[1])})
+        flask_thread.start()
 
-            self.socket_client()
-        except sqlite3.DatabaseError:
-            self.logger.error('Error while connecting to SQLite database. Resetting the database...')
-            self.db.reset_database()
-            self.logger.info('Database reset successful. Starting the application...')
-            self.start()
+        self.socket_client()
 
     def check_email_cookie(self, response):
         if has_request_context():
@@ -81,8 +72,6 @@ class MeetingSchedulerApp:
 
         # ...
 
-    def render_notify_meeting_request(self, sender, date):
-        return self.notify_meeting_request(sender, date)
     def socket_client(self):
         with self.app.app_context():
             if self.client is None:  # Check if client already exists
@@ -139,7 +128,8 @@ class MeetingSchedulerApp:
         json_data = self.get_json_data()
         email = json_data.get('email')
         password = json_data.get('password')
-        if self.db.authenticate_user_credentials(email, password):
+        self.socket_client()
+        if self.client.send_login_request(email, password):
             response = jsonify(response='Login successful')
             session['username'] = email
             self.logger.info('Login response: %s', response.json)
@@ -154,8 +144,8 @@ class MeetingSchedulerApp:
         username = json_data.get('username')
         email = json_data.get('email')
         password = json_data.get('password')
-
-        if (self.db.sign_in(username, email, password)):
+        self.socket_client()
+        if (self.client.send_sign_in_request(username, email, password)):
             response = jsonify(response='Sign-in successful')
             self.logger.info('Sign-in response: %s', response.json)
             return response, 200
