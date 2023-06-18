@@ -68,7 +68,6 @@ class MeetingSchedulerApp:
         self.app.route('/recieve-meetings', methods=['GET'])(self.recieve_meetings)
         self.app.route('/update-meeting', methods=['POST'])(self.update_meeting)
         self.app.route('/get_email_cookie', methods=['GET'])(self.get_email_cookie)
-        self.app.route('/notify-meeting-request/<sender>/<date>')(self.render_notify_meeting_request)
 
         # ...
 
