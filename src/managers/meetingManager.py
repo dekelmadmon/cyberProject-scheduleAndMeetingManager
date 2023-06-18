@@ -56,9 +56,9 @@ class MeetingManager(ManagerInterface):
         except sqlite3.Error as error:
             print("Error while connecting to sqlite", error)
         finally:
-            if (cursor != None):
+            if cursor is not None:
                 cursor.close()
-            if (connection != None):
+            if connection is not None:
                 self.db.disconnect(connection)
 
     def retrieve(self, data):
@@ -73,16 +73,16 @@ class MeetingManager(ManagerInterface):
 
             # Retrieve pending invitations for the participant's email
             cursor.execute(
-                    """
+                """
                 SELECT *
                 FROM invitations
-                WHERE  ?  IN (recipient, clientemail)
+                WHERE ? IN (recipient, clientemail)
                 """,
                 (data.get("email"),),
             )
 
             invitation = cursor.fetchone()
-            while invitation != None:
+            while invitation is not None:
                 meeting = Meeting(invitation[0], invitation[1], invitation[2], invitation[3])
                 invitations.append(meeting)
                 invitation = cursor.fetchone()
@@ -92,15 +92,14 @@ class MeetingManager(ManagerInterface):
         except sqlite3.Error as error:
             print("Error while connecting to sqlite", error)
         finally:
-            if (cursor != None):
+            if cursor is not None:
                 cursor.close()
-            if (connection != None):
+            if connection is not None:
                 self.db.disconnect(connection)
 
         return json.dumps(invitations, cls=MeetingEncoder)
 
     def update(self, data):
-
         # Connect to the temporary SQLite database
         connection = None
         cursor = None
@@ -126,7 +125,7 @@ class MeetingManager(ManagerInterface):
         except sqlite3.Error as error:
             print("Error while connecting to sqlite", error)
         finally:
-            if (cursor != None):
+            if cursor is not None:
                 cursor.close()
-            if (connection != None):
+            if connection is not None:
                 self.db.disconnect(connection)

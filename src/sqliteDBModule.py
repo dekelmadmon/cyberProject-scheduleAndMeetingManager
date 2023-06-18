@@ -1,6 +1,6 @@
 import sqlite3
 import os
-
+import hashlib
 
 class Database:
     def __init__(self):
@@ -30,34 +30,7 @@ class Database:
         os.remove(self.database_path)
         self.connect()
 
-    def authenticate_user_credentials(self, email, password):
-        """
-        Check if a user with the given email and password exists in the database.
-        Returns True if the user exists, False otherwise.
-        """
-        connection = None
-        cursor = None
-        result = None
-        try:
-            connection = self.connect()
-            cursor = connection.cursor()
 
-            query = '''
-                        SELECT EXISTS (
-                            SELECT 1 FROM Data
-                            WHERE userEmail = ? AND userPassword = ?
-                        )
-                    '''
-            cursor.execute(query, (email, password))
-            result = bool(cursor.fetchone()[0])
-        except sqlite3.Error as error:
-            print("Error while connecting to sqlite", error)
-        finally:
-            if cursor is not None:
-                cursor.close()
-            if connection is not None:
-                self.disconnect(connection)
-        return result
 
     def user_exists(self, email):
         """
@@ -90,6 +63,9 @@ class Database:
         """
         Insert a new user into the database.
         """
+        password_bytes = password.encode('utf-8')
+        encrypted_password = hashlib.sha256(password_bytes).hexdigest()
+
         if not self.user_exists(email):
             connection = None
             cursor = None
@@ -99,7 +75,7 @@ class Database:
 
                 query = '''INSERT INTO Data (username, userEmail, userPassword)
                                        VALUES (?, ?, ?)'''
-                cursor.execute(query, (username, email, password))
+                cursor.execute(query, (username, email, encrypted_password))
 
                 connection.commit()
             except sqlite3.Error as error:
@@ -147,7 +123,7 @@ class Database:
                     id INTEGER PRIMARY KEY,
                     username TEXT,
                     userEmail TEXT NOT NULL UNIQUE,
-                    userPassword TEXT NOT NULL
+                    userPassword HASH NOT NULL
                 )
                 """
             )
@@ -158,7 +134,7 @@ class Database:
                 CREATE TABLE IF NOT EXISTS client_database (
                     clientemail TEXT PRIMARY KEY,
                     username TEXT,
-                    password TEXT
+                    password HASH
                 )
                 """
             )
@@ -181,7 +157,7 @@ class Database:
                     recipient TEXT,
                     date TEXT,
                     status TEXT,
-                    FOREIGN KEY (clientemail) REFERENCES client_database(clientemail)
+                    FOREIGN KEY (clientemail) REFERENCES data(clientemail)
                 )
                 """
             )

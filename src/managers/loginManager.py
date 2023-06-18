@@ -1,3 +1,4 @@
+import hashlib
 import json
 import sqlite3
 
@@ -16,6 +17,7 @@ class LoginManager(ManagerInterface):
         """
         email = data["email"]
         password = data["password"]
+
         username = data["username"]
         response = False
         if not self.authenticate_user_credentials(email, password):
@@ -51,6 +53,9 @@ class LoginManager(ManagerInterface):
         Checks if a user with the given email and password exists in the database.
         Returns True if the user exists, False otherwise.
         """
+        password_bytes = password.encode('utf-8')
+        encrypted_password = hashlib.sha256(password_bytes).hexdigest()
+        print(encrypted_password)
         connection = None
         cursor = None
         result = None
@@ -64,7 +69,7 @@ class LoginManager(ManagerInterface):
                         WHERE userEmail = ? AND userPassword = ?
                     )
                     '''
-            cursor.execute(query, (email, password))
+            cursor.execute(query, (email, encrypted_password))
             result = bool(cursor.fetchone()[0])
         except sqlite3.Error as error:
             print("Error while connecting to sqlite", error)
@@ -106,6 +111,8 @@ class LoginManager(ManagerInterface):
         """
         Inserts a new user into the database.
         """
+        password_bytes = password.encode('utf-8')
+        encrypted_password = hashlib.sha256(password_bytes).hexdigest()
         if not self.user_exists(email):
             connection = None
             cursor = None
@@ -115,7 +122,7 @@ class LoginManager(ManagerInterface):
 
                 query = '''INSERT INTO Data (username, userEmail, userPassword)
                                        VALUES (?, ?, ?)'''
-                cursor.execute(query, (username, email, password))
+                cursor.execute(query, (username, email, encrypted_password))
 
                 connection.commit()
             except sqlite3.Error as error:

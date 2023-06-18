@@ -141,7 +141,7 @@ class MeetingSchedulerApp:
         email = json_data.get('email')
         password = json_data.get('password')
         self.socket_client()
-        if self.client.send_login_request(email, password):
+        if json.loads(self.client.send_login_request(email, password))["response"]:
             response = jsonify(response='Login successful')
             session['username'] = email
             self.logger.info('Login response: %s', response.json)
@@ -158,7 +158,7 @@ class MeetingSchedulerApp:
         email = json_data.get('email')
         password = json_data.get('password')
         self.socket_client()
-        if self.client.send_sign_in_request(username, email, password):
+        if json.loads(self.client.send_sign_in_request(username, email, password))["response"]:
             response = jsonify(response='Sign-in successful')
             self.logger.info('Sign-in response: %s', response.json)
             return response, 200
